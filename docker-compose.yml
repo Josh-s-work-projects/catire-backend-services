@@ -1,146 +1,121 @@
 version: '3.8'
 
 services:
-  # --- BASES DE DATOS ---
-  postgres_db:
+  # --- BASES DE DATOS INDEPENDIENTES ---
+  
+  auth_db:
     image: postgres:15-alpine
-    container_name: postgres_db
-    restart: always
+    container_name: auth_db
     environment:
+      POSTGRES_DB: catire_auth_db
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
-    volumes:
-      - pg_data:/var/lib/postgresql/data
     networks:
       - t4_network
 
-  mongo_db:
+  catalog_db:
+    image: postgres:15-alpine
+    container_name: catalog_db
+    environment:
+      POSTGRES_DB: catire_catalog_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - t4_network
+
+  order_db:
+    image: postgres:15-alpine
+    container_name: order_db
+    environment:
+      POSTGRES_DB: catire_order_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    networks:
+      - t4_network
+
+  order_db_audit:
     image: mongo:6-jammy
-    container_name: mongo_db
-    restart: always
+    container_name: order_db_audit
+    networks:
+      - t4_network
+
+  finance_config_db:
+    image: postgres:15-alpine
+    container_name: finance_config_db
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
-    ports:
-      - "${MONGO_PORT}:${MONGO_PORT}"
-    volumes:
-      - mongo_data:/data/db
+      POSTGRES_DB: catire_finance_config_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
       - t4_network
 
-  redis_cache:
-    image: redis:7-alpine
-    container_name: redis_cache
-    restart: always
-    ports:
-      - "${REDIS_PORT}:${REDIS_PORT}"
-    command: redis-server --requirepass "${REDIS_PASSWORD}"
-    volumes:
-      - redis_data:/data
-    networks:
-      - t4_network
 
-  # --- MICROSERVICIOS (NESTJS) ---
+  # --- MICROSERVICIOS ---
+
   auth-service:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    container_name: auth-service
-    command: npm run start:dev auth-service
+    build: 
+      context: ./auth-service
+      dockerfile: ../Dockerfile.dev
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./auth-service:/usr/src/app
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_db:${POSTGRES_PORT}/${POSTGRES_DB}
-      - REDIS_HOST=redis_cache
-      - REDIS_PORT=${REDIS_PORT}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@auth_db:5432/catire_auth_db
     depends_on:
-      - postgres_db
-      - redis_cache
+      - auth_db
     networks:
       - t4_network
 
   catalog-service:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    container_name: catalog-service
-    command: npm run start:dev catalog-service
+    build: 
+      context: ./catalog-service
+      dockerfile: ../Dockerfile.dev
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./catalog-service:/usr/src/app
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_db:${POSTGRES_PORT}/${POSTGRES_DB}
-      - REDIS_HOST=redis_cache
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@catalog_db:5432/catire_catalog_db
     depends_on:
-      - postgres_db
-      - redis_cache
+      - catalog_db
     networks:
       - t4_network
 
   order-service:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    container_name: order-service
-    command: npm run start:dev order-service
+    build: 
+      context: ./order-service
+      dockerfile: ../Dockerfile.dev
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./order-service:/usr/src/app
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_db:${POSTGRES_PORT}/${POSTGRES_DB}
-      - MONGO_URL=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo_db:27017/orders_db?authSource=admin
-      - REDIS_HOST=redis_cache
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@order_db:5432/catire_order_db
+      - MONGO_URL=mongodb://order_db_audit:27017/catire_order_db
     depends_on:
-      - postgres_db
-      - mongo_db
-      - redis_cache
+      - order_db
+      - order_db_audit
     networks:
       - t4_network
 
   finance-config-service:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    container_name: finance-service
-    command: npm run start:dev finance-service
+    build: 
+      context: ./finance-config-service
+      dockerfile: ../Dockerfile.dev
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./finance-config-service:/usr/src/app
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres_db:${POSTGRES_PORT}/${POSTGRES_DB}
-      - REDIS_HOST=redis_cache
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@finance_config_db:5432/catire_finance_config_db
     depends_on:
-      - postgres_db
-      - redis_cache
+      - finance_config_db
     networks:
       - t4_network
 
-  # --- API GATEWAY ---
+  # Gateway (Nginx)
   api-gateway:
     image: nginx:alpine
-    container_name: api_gateway_nginx
     ports:
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - auth-service
-      - catalog-service
-      - order-service
-      - finance-config-service
     networks:
       - t4_network
 
 networks:
   t4_network:
     driver: bridge
-
-volumes:
-  pg_data:
-  mongo_data:
-  redis_data:
