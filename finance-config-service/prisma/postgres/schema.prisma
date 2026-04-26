@@ -1,0 +1,19 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../src/generated/postgres-client"
+}
+
+model Purchase {
+  id                  Int @id @default(autoincrement())
+  order_id            Int
+  purchase_base       Decimal @db.Decimal(10, 2)
+  purchase_additional Decimal @db.Decimal(10, 2)
+  purchase_total      Decimal @db.Decimal(10, 2)
+  notes               String?
+
+  @@map ("purchases")
+}

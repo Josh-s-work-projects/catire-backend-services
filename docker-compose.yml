@@ -1,57 +1,37 @@
 version: '3.8'
 
 services:
-  # --- BASES DE DATOS INDEPENDIENTES ---
-  
-  auth_db:
+  # --- BASES DE DATOS ---
+  catire_postgres_db:
     image: postgres:15-alpine
-    container_name: auth_db
+    container_name: catire_postgres_db
+    restart: always
     environment:
-      POSTGRES_DB: catire_auth_db
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: catire_core_db 
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./init_db:/docker-entrypoint-initdb.d 
     networks:
       - t4_network
 
-  catalog_db:
-    image: postgres:15-alpine
-    container_name: catalog_db
-    environment:
-      POSTGRES_DB: catire_catalog_db
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    networks:
-      - t4_network
-
-  order_db:
-    image: postgres:15-alpine
-    container_name: order_db
-    environment:
-      POSTGRES_DB: catire_order_db
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    networks:
-      - t4_network
-
-  order_db_audit:
+  # --- MONGODB ---
+  catire_audit_db:
     image: mongo:6-jammy
-    container_name: order_db_audit
+    container_name: catire_audit_db
     networks:
       - t4_network
 
-  finance_config_db:
-    image: postgres:15-alpine
-    container_name: finance_config_db
-    environment:
-      POSTGRES_DB: catire_finance_config_db
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  catire_config_db:
+    image: mongo:6-jammy
+    container_name: catire_config_db
     networks:
       - t4_network
-
 
   # --- MICROSERVICIOS ---
-
   auth-service:
     build: 
       context: ./auth-service
@@ -59,9 +39,10 @@ services:
     volumes:
       - ./auth-service:/usr/src/app
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@auth_db:5432/catire_auth_db
+      # Nota que ahora todos apuntan a 'catire_postgres_db'
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@catire_postgres_db:5432/catire_auth_db
     depends_on:
-      - auth_db
+      - catire_postgres_db
     networks:
       - t4_network
 
@@ -72,9 +53,9 @@ services:
     volumes:
       - ./catalog-service:/usr/src/app
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@catalog_db:5432/catire_catalog_db
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@catire_postgres_db:5432/catire_catalog_db
     depends_on:
-      - catalog_db
+      - catire_postgres_db
     networks:
       - t4_network
 
@@ -85,11 +66,11 @@ services:
     volumes:
       - ./order-service:/usr/src/app
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@order_db:5432/catire_order_db
-      - MONGO_URL=mongodb://order_db_audit:27017/catire_order_db
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@catire_postgres_db:5432/catire_order_db
+      - MONGO_URL=mongodb://catire_audit_db:27017/catire_order_db
     depends_on:
-      - order_db
-      - order_db_audit
+      - catire_postgres_db
+      - catire_audit_db
     networks:
       - t4_network
 
@@ -100,22 +81,32 @@ services:
     volumes:
       - ./finance-config-service:/usr/src/app
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@finance_config_db:5432/catire_finance_config_db
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@catire_postgres_db:5432/catire_finance_config_db
+      - MONGO_URL=mongodb://catire_config_db:27017/catire_finance_config_db
     depends_on:
-      - finance_config_db
+      - catire_postgres_db
+      - catire_config_db
     networks:
       - t4_network
 
-  # Gateway (Nginx)
   api-gateway:
     image: nginx:alpine
+    container_name: api_gateway_nginx
     ports:
       - "80:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - auth-service
+      - catalog-service
+      - order-service
+      - finance-config-service
     networks:
       - t4_network
 
 networks:
   t4_network:
     driver: bridge
+
+volumes:
+  pg_data:

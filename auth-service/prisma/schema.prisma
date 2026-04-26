@@ -1,0 +1,47 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            Int @id @default(autoincrement())
+  role_id       Int
+  full_name     String
+  email         String @unique
+  dni           Int
+  phone_1       String
+  phone_2       String?
+  role          Role @relation(fields: [role_id], references: [id])
+  shopping_cars ShoppingCar[]
+
+  @@map ("users")
+}
+
+model Role {
+  id          Int @id @default(autoincrement())
+  name        String
+  users       User[]
+  permissions Modules[]
+
+  @@map ("roles")
+}
+
+model ShoppingCar {
+  id      Int  @id @default(autoincrement())
+  user_id Int
+  details Json
+  user    User @relation(fields: [user_id], references: [id])
+
+  @@map ("shopping_cars")
+}
+
+enum Modules {
+  Branches
+  Menus
+  Products
+  Users
+  Roles
+}

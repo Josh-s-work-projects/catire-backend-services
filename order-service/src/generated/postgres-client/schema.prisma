@@ -1,0 +1,34 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../src/generated/postgres-client"
+}
+
+model Order {
+  id          Int           @id @default(autoincrement())
+  product_id  Int
+  quantity    Int
+  is_delivery Boolean
+  notes       String?       @db.Text
+  details     OrderDetail[]
+}
+
+model OrderDetail {
+  id         Int     @id @default(autoincrement())
+  order_id   Int
+  name_tag   NameTag
+  value      String
+  product_id Int
+  order      Order   @relation(fields: [order_id], references: [id])
+}
+
+enum NameTag {
+  size
+  toppings
+  type_meat
+  type_sausage
+  sauce
+}

@@ -1,0 +1,48 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Branch {
+  id               Int @id @default(autoincrement())
+  name             String
+  coordinates_long String
+  coordinates_lat  String
+  menus            Menu[]
+
+  @@map ("branches")
+}
+
+model Menu {
+  id        Int @id @default(autoincrement())
+  name      String
+  branch_id Int
+  branch    Branch @relation(fields: [branch_id], references: [id])
+  products  Product[]
+
+  @@map ("menus")
+}
+
+model Category {
+  id       Int @id @default(autoincrement())
+  name     String
+  products Product[]
+
+  @@map ("categories")
+}
+
+model Product {
+  id          Int @id @default(autoincrement())
+  menu_id     Int
+  name        String
+  img_src     String
+  base_price  Float
+  category_id Int
+  menu        Menu @relation(fields: [menu_id], references: [id])
+  category    Category @relation(fields: [category_id], references: [id])
+
+  @@map ("products")
+}
