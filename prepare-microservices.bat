@@ -18,7 +18,7 @@ for %%s in (%SERVICES%) do (
         echo ----------------------------------------------------
         
         set "ES_MULTI_DB=0"
-        if "%%s"=="auth-service" set "ES_MULTI_DB=1"
+        if "%%s"=="order-service" set "ES_MULTI_DB=1"
         if "%%s"=="finance-config-service" set "ES_MULTI_DB=1"
 
         if "!ES_MULTI_DB!"=="1" (

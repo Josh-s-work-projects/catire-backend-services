@@ -18,7 +18,7 @@ do
             echo "Ejecutando migraciones en: $SERVICE"
             echo "----------------------------------------------------"
             
-            if [[ "$SERVICE" == "auth-service" || "$SERVICE" == "finance-config-service" ]]; then
+            if [[ "$SERVICE" == "order-service" || "$SERVICE" == "finance-config-service" ]]; then
                 npx prisma migrate deploy --schema=./prisma/postgres/schema.prisma
                 npx prisma db push --schema=./prisma/mongo/schema.prisma
             else
