@@ -93,5 +93,16 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
   - Puede requerir integración con `finance-config-service`.
 - `finance-config-service`: servicios y configuraciones financieras necesarias para pagos y contabilidad.
 
+En caso de ejecutar algun comando para algun microservicio, tome en cuenta el siguiente comando:
+  
+  Linux:
+  ```
+  sudo docker-compose run --rm <nombre-servicio> <comando>
+  ```
+
+  Windows:
+  ```
+  docker-compose run --rm <nombre-servicio> <comando>
+  ```
 ---
 Fecha de generación: 2026-04-23
