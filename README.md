@@ -25,7 +25,19 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
 
 **Guia de preparacion**
 
-- Ejecuta los contenedores de
+- Prepara la variable de entorno raiz:
+
+  Linux:
+  ```
+  cp .env.example .env
+  ```
+
+  Windows:
+  ```
+  copy .env.example .env
+  ```
+
+- Ejecuta los contenedores de docker:
 
   Linux:
   ```
@@ -40,7 +52,6 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
 
   Linux:
   ```
-  cp .env.example .env
   cd auth-service/ && cp .env.example .env && cd ..
   cd catalog-service/ && cp .env.example .env && cd ..
   cd finance-config-service/ && cp .env.example .env && cd ..
@@ -49,11 +60,10 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
 
   Windows:
   ```
-  copy .env.example .env
-  cd auth-service && copy .env.example .env && cd ..
-  cd catalog-service && copy .env.example .env && cd ..
-  cd finance-config-service && copy .env.example .env && cd ..
-  cd order-service && copy .env.example .env && cd ..
+  cd auth-service ; copy .env.example .env ; cd ..
+  cd catalog-service ; copy .env.example .env ; cd ..
+  cd finance-config-service ; copy .env.example .env ; cd ..
+  cd order-service ; copy .env.example .env ; cd ..
   ```
 
 - Ejecuta los scripts para preparar los microservicios (dependencias, migraciones, etc):
@@ -66,11 +76,10 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
 
   Windows:
   ```
-  prepare-microservices.bat
+  .\prepare-microservices.bat
   ```
 
 - Pruebe ahora ejecutando el contenedor de postgres y verificando las tablas:
-
   ```
   docker exec -it catire_postgres_db psql -U root -d postgres
   ```
