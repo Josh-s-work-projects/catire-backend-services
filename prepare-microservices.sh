@@ -19,10 +19,10 @@ do
             echo "----------------------------------------------------"
             
             if [[ "$SERVICE" == "order-service" || "$SERVICE" == "finance-config-service" ]]; then
-                npx prisma migrate deploy --schema=./prisma/postgres/schema.prisma
-                npx prisma db push --schema=./prisma/mongo/schema.prisma
+                docker-compose run -e ACTIVE_DB=postgres --rm "$SERVICE" npx prisma migrate deploy --schema=./prisma/postgres/schema.prisma
+                docker-compose run -e ACTIVE_DB=mongo --rm "$SERVICE" npx prisma db push --schema=./prisma/mongo/schema.prisma
             else
-                npx prisma migrate deploy
+                docker-compose run -e ACTIVE_DB=postgres --rm "$SERVICE" npx prisma migrate deploy
             fi
         )
     else

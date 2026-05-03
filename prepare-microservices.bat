@@ -22,10 +22,10 @@ for %%s in (%SERVICES%) do (
         if "%%s"=="finance-config-service" set "ES_MULTI_DB=1"
 
         if "!ES_MULTI_DB!"=="1" (
-            call npx prisma migrate deploy --schema=./prisma/postgres/schema.prisma
-            call npx prisma db push --schema=./prisma/mongo/schema.prisma
+            call docker-compose run -e ACTIVE_DB=postgres --rm %%s npx prisma migrate deploy --schema=./prisma/postgres/schema.prisma
+            call docker-compose run -e ACTIVE_DB=mongo --rm %%s npx prisma db push --schema=./prisma/mongo/schema.prisma
         ) else (
-            call npx prisma migrate deploy
+            call docker-compose run -e ACTIVE_DB=postgres --rm %%s npx prisma migrate deploy
         )
         popd
     ) else (
@@ -33,5 +33,5 @@ for %%s in (%SERVICES%) do (
     )
 )
 
-echo ¡Proceso finalizado con exito!
+echo Proceso finalizado con exito
 pause

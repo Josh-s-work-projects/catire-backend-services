@@ -8,6 +8,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"], // usar MONGO_URL para cambios en mongo, y DATABASE_URL para cambios en postgres
+    url: process.env["ACTIVE_DB"] === "mongo" ? process.env["MONGO_URL"] : process.env["DATABASE_URL"], // usar MONGO_URL para cambios en mongo, y DATABASE_URL para cambios en postgres
   },
 });

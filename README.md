@@ -44,7 +44,7 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
   sudo docker-compose up -d --build
   ```
 
-  Windows:
+  Windows (Asegurate de abrir el Docker Desktop para iniciar el engine de Docker):
   ```
   docker-compose up -d --build
   ```
