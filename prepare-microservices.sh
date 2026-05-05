@@ -11,18 +11,17 @@ do
         echo "Instalando dependencias en: $SERVICE"
         echo "----------------------------------------------------"
         (
-            cd "$SERVICE" || exit
-            npm install
+            sudo docker-compose run --rm "$SERVICE" npm install
             
             echo "----------------------------------------------------"
             echo "Ejecutando migraciones en: $SERVICE"
             echo "----------------------------------------------------"
             
             if [[ "$SERVICE" == "order-service" || "$SERVICE" == "finance-config-service" ]]; then
-                docker-compose run -e ACTIVE_DB=postgres --rm "$SERVICE" npx prisma migrate deploy --schema=./prisma/postgres/schema.prisma
-                docker-compose run -e ACTIVE_DB=mongo --rm "$SERVICE" npx prisma db push --schema=./prisma/mongo/schema.prisma
+                sudo docker-compose run -e ACTIVE_DB=postgres --rm "$SERVICE" npx prisma migrate deploy --schema=./prisma/postgres/schema.prisma
+                sudo docker-compose run -e ACTIVE_DB=mongo --rm "$SERVICE" npx prisma db push --schema=./prisma/mongo/schema.prisma
             else
-                docker-compose run -e ACTIVE_DB=postgres --rm "$SERVICE" npx prisma migrate deploy
+                sudo docker-compose run -e ACTIVE_DB=postgres --rm "$SERVICE" npx prisma migrate deploy
             fi
         )
     else

@@ -33,6 +33,8 @@ services:
 
   # --- MICROSERVICIOS ---
   auth-service:
+    container_name: auth-service
+    hostname: auth-service
     build: 
       context: ./auth-service
       dockerfile: ../Dockerfile.dev
@@ -47,6 +49,8 @@ services:
       - t4_network
 
   catalog-service:
+    container_name: catalog-service
+    hostname: catalog-service
     build: 
       context: ./catalog-service
       dockerfile: ../Dockerfile.dev
@@ -60,6 +64,8 @@ services:
       - t4_network
 
   order-service:
+    container_name: order-service
+    hostname: order-service
     build: 
       context: ./order-service
       dockerfile: ../Dockerfile.dev
@@ -75,6 +81,8 @@ services:
       - t4_network
 
   finance-config-service:
+    container_name: finance-config-service
+    hostname: finance-config-service
     build: 
       context: ./finance-config-service
       dockerfile: ../Dockerfile.dev
