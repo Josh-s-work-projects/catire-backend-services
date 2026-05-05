@@ -8,16 +8,16 @@ import {
   Delete,
 } from '@nestjs/common';
 import { BranchesService } from './branches.service';
-import { Branch, Prisma } from '@prisma/client';
+import { Branch } from '@prisma/client';
+import { CreateBranchDto } from 'src/generated/nestjs-dto/branch/dto/create-branch.dto';
+import { UpdateBranchDto } from 'src/generated/nestjs-dto/branch/dto/update-branch.dto';
 
 @Controller('branches')
 export class BranchesController {
   constructor(private readonly branchesService: BranchesService) {}
 
   @Post()
-  async create(
-    @Body() createBranchDto: Prisma.BranchCreateInput,
-  ): Promise<Branch> {
+  async create(@Body() createBranchDto: CreateBranchDto): Promise<Branch> {
     return await this.branchesService.create(createBranchDto);
   }
 
@@ -34,7 +34,7 @@ export class BranchesController {
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateBranchDto: Prisma.BranchUpdateInput,
+    @Body() updateBranchDto: UpdateBranchDto,
   ): Promise<Branch> {
     return await this.branchesService.update(+id, updateBranchDto);
   }

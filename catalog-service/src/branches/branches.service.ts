@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Branch, Prisma } from '@prisma/client';
+import { Branch } from '@prisma/client';
+import { CreateBranchDto } from 'src/generated/nestjs-dto/branch/dto/create-branch.dto';
+import { UpdateBranchDto } from 'src/generated/nestjs-dto/branch/dto/update-branch.dto';
 
 @Injectable()
 export class BranchesService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createBranchDto: Prisma.BranchCreateInput): Promise<Branch> {
+  async create(createBranchDto: CreateBranchDto): Promise<Branch> {
     return this.prisma.branch.create({
       data: createBranchDto,
     });
@@ -22,10 +24,7 @@ export class BranchesService {
     });
   }
 
-  async update(
-    id: number,
-    updateBranchDto: Prisma.BranchUpdateInput,
-  ): Promise<Branch> {
+  async update(id: number, updateBranchDto: UpdateBranchDto): Promise<Branch> {
     return this.prisma.branch.update({
       where: { id },
       data: updateBranchDto,
