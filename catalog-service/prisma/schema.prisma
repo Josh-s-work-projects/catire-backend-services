@@ -1,54 +1,48 @@
-datasource db {
-  provider = "postgresql"
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
-generator nestjsDto {
-  provider    = "prisma-generator-nestjs-dto"
-  output      = "../src/generated/nestjs-dto"
-  outputToNestJsResourceStructure = "true"
+datasource db {
+  provider = "postgresql"
 }
 
 model Branch {
-  id               Int @id @default(autoincrement())
-  name             String
-  coordinates_long String
-  coordinates_lat  String
+  id               Int    @id @default(autoincrement())
+  name             String @unique
+  coordinates_long Float @unique
+  coordinates_lat  Float @unique
   menus            Menu[]
 
-  @@map ("branches")
+  @@map("branches")
 }
 
 model Menu {
-  id        Int @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
   branch_id Int
-  branch    Branch @relation(fields: [branch_id], references: [id])
+  branch    Branch    @relation(fields: [branch_id], references: [id])
   products  Product[]
 
-  @@map ("menus")
+  @@map("menus")
 }
 
 model Category {
-  id       Int @id @default(autoincrement())
+  id       Int       @id @default(autoincrement())
   name     String
   products Product[]
 
-  @@map ("categories")
+  @@map("categories")
 }
 
 model Product {
-  id          Int @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   menu_id     Int
   name        String
   img_src     String
   base_price  Float
   category_id Int
-  menu        Menu @relation(fields: [menu_id], references: [id])
   category    Category @relation(fields: [category_id], references: [id])
+  menu        Menu     @relation(fields: [menu_id], references: [id])
 
-  @@map ("products")
+  @@map("products")
 }
