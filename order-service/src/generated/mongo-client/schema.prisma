@@ -15,6 +15,8 @@ model OrderStatus {
   message        String
   start_datetime DateTime        @default(now())
   end_datetime   DateTime?
+
+  @@map("order_status")
 }
 
 model UserAccess {
@@ -23,6 +25,8 @@ model UserAccess {
   device_ip      String
   access_error   String?
   accessed_since DateTime @default(now())
+
+  @@map("user_access")
 }
 
 enum OrderStatusType {
