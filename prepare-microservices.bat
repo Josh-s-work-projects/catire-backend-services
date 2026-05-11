@@ -12,6 +12,7 @@ for %%s in (%SERVICES%) do (
         echo ----------------------------------------------------
         pushd %%s
         call npm install
+        call docker exec -it %%s npm install
         
         echo ----------------------------------------------------
         echo Ejecutando migraciones en: %%s
@@ -22,10 +23,14 @@ for %%s in (%SERVICES%) do (
         if "%%s"=="finance-config-service" set "ES_MULTI_DB=1"
 
         if "!ES_MULTI_DB!"=="1" (
-            call docker-compose run -e ACTIVE_DB=postgres --rm %%s npx prisma migrate deploy --schema=./prisma/postgres/schema.prisma
-            call docker-compose run -e ACTIVE_DB=mongo --rm %%s npx prisma db push --schema=./prisma/mongo/schema.prisma
+            call docker exec -it -e ACTIVE_DB=postgres %%s npx prisma migrate deploy --schema=./prisma/postgres/schema.prisma
+            call docker exec -it -e ACTIVE_DB=mongo %%s npx prisma db push --schema=./prisma/mongo/schema.prisma
+
+            call docker exec -it -e ACTIVE_DB=postgres %%s npx prisma generate --schema=./prisma/postgres/schema.prisma
+            call docker exec -it -e ACTIVE_DB=mongo %%s npx prisma generate --schema=./prisma/mongo/schema.prisma
         ) else (
-            call docker-compose run -e ACTIVE_DB=postgres --rm %%s npx prisma migrate deploy
+            call docker exec -it -e ACTIVE_DB=postgres %%s npx prisma migrate deploy
+            call docker exec -it -e ACTIVE_DB=postgres %%s npx prisma generate
         )
         popd
     ) else (

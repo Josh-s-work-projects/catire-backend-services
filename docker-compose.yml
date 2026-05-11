@@ -22,52 +22,73 @@ services:
   catire_audit_db:
     image: mongo:6-jammy
     container_name: catire_audit_db
+    volumes:
+      - audit_mongo_data:/data/db
     networks:
       - t4_network
 
   catire_config_db:
     image: mongo:6-jammy
     container_name: catire_config_db
+    volumes:
+      - config_mongo_data:/data/db
     networks:
       - t4_network
 
   # --- MICROSERVICIOS ---
   auth-service:
+    container_name: auth-service
+    hostname: auth-service
     build: 
       context: ./auth-service
       dockerfile: ../Dockerfile.dev
+    init: true
     volumes:
       - ./auth-service:/usr/src/app
+      - /usr/src/app/node_modules
     environment:
-      # Nota que ahora todos apuntan a 'catire_postgres_db'
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@catire_postgres_db:5432/catire_auth_db
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
     depends_on:
       - catire_postgres_db
     networks:
       - t4_network
 
   catalog-service:
+    container_name: catalog-service
+    hostname: catalog-service
     build: 
       context: ./catalog-service
       dockerfile: ../Dockerfile.dev
+    init: true
     volumes:
       - ./catalog-service:/usr/src/app
+      - /usr/src/app/node_modules
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@catire_postgres_db:5432/catire_catalog_db
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
     depends_on:
       - catire_postgres_db
     networks:
       - t4_network
 
   order-service:
+    container_name: order-service
+    hostname: order-service
     build: 
       context: ./order-service
       dockerfile: ../Dockerfile.dev
+    init: true
     volumes:
       - ./order-service:/usr/src/app
+      - /usr/src/app/node_modules
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@catire_postgres_db:5432/catire_order_db
       - MONGO_URL=mongodb://catire_audit_db:27017/catire_order_db
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
     depends_on:
       - catire_postgres_db
       - catire_audit_db
@@ -75,14 +96,20 @@ services:
       - t4_network
 
   finance-config-service:
+    container_name: finance-config-service
+    hostname: finance-config-service
     build: 
       context: ./finance-config-service
       dockerfile: ../Dockerfile.dev
+    init: true
     volumes:
       - ./finance-config-service:/usr/src/app
+      - /usr/src/app/node_modules
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@catire_postgres_db:5432/catire_finance_config_db
       - MONGO_URL=mongodb://catire_config_db:27017/catire_finance_config_db
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
     depends_on:
       - catire_postgres_db
       - catire_config_db
@@ -110,3 +137,5 @@ networks:
 
 volumes:
   pg_data:
+  audit_mongo_data:
+  config_mongo_data:

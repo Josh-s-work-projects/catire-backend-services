@@ -13,4 +13,6 @@ model CurrencyRate {
   rate_cop     Float
   rate_bs      Float
   last_updated DateTime @updatedAt
+
+  @@map("currency_rates")
 }

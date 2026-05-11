@@ -5,10 +5,15 @@ WORKDIR /usr/src/app
 RUN npm install -g @nestjs/cli
 
 COPY package*.json ./
+COPY prisma ./prisma
 
 RUN npm install
 
 COPY . .
+
+RUN npx prisma generate --schema=./prisma/schema.prisma || true; \
+	npx prisma generate --schema=./prisma/postgres/schema.prisma || true; \
+	npx prisma generate --schema=./prisma/mongo/schema.prisma || true
 
 EXPOSE 3000
 
