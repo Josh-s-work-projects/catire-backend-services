@@ -14,6 +14,7 @@ model User {
   dni           Int
   phone_1       String
   phone_2       String?
+  password      String
   role          Role @relation(fields: [role_id], references: [id])
   shopping_cars ShoppingCar[]
 

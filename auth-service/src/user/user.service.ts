@@ -1,52 +1,49 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/database/prisma.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { Injectable } from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async createUser(body: CreateUserDto) {
+  async createUser(body: CreateUserDto): Promise<User | null> {
     try {
       const salts = await bcrypt.genSalt();
       const hash = await bcrypt.hash(body.password, salts);
+
       const newUser = await this.prisma.user.create({
-        data: { username: body.username, password: hash },
+        data: {
+          ...body,
+          password: hash,
+        },
       });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...result } = newUser;
-      return result;
-    } catch (error) {
-      if (error instanceof Error)
-        throw new InternalServerErrorException(error.message);
-    }
-  }
 
-  async findOneUser(username: string) {
-    try {
-      const user = await this.prisma.user.findFirst({ where: { username } });
-      if (user) return user;
+      return newUser;
+    } catch (error) {
+      console.log('ERROR: ', error);
       return null;
-    } catch (error) {
-      if (error instanceof Error)
-        throw new InternalServerErrorException(error.message);
     }
   }
 
-  async getUserById(id: number) {
+  async findOneUser(email: string): Promise<User | null> {
+    try {
+      const user = await this.prisma.user.findFirst({ where: { email } });
+      return user;
+    } catch (error) {
+      console.log('ERROR: ', error);
+      return null;
+    }
+  }
+
+  async getUserById(id: number): Promise<User | null> {
     try {
       const user = await this.prisma.user.findFirst({ where: { id } });
-      if (!user)
-        throw new NotFoundException(`Usuario con id ${id} no encontrado`);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const {password, ...result} = user;
-      return result;
+      return user;
     } catch (error) {
-      if (error instanceof NotFoundException)
-        throw new NotFoundException(error.message);
-      if (error instanceof Error)
-        throw new InternalServerErrorException(error.message);
+      console.log('ERROR: ', error);
+      return null;
     }
   }
 }

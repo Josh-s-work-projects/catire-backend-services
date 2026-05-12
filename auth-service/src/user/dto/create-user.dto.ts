@@ -1,35 +1,60 @@
-import { IsNotEmpty, IsString } from 'class-validator';
-
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  Validate,
+} from 'class-validator';
+import { IsUnique } from 'src/prisma/validator/IsUnique.validator';
 export class CreateUserDto {
-    @IsString()
-    @IsNotEmpty()
-    full_name: string;
-    
-    @IsString()
-    @IsNotEmpty()
-    role_id:       number;
+  @IsString({ message: 'El nombre completo debe ser de texto.' })
+  @IsNotEmpty({ message: 'El nombre completo es requerido.' })
+  full_name!: string;
 
-    @IsString()
-    @IsNotEmpty()
-    full_name:     String;
+  @IsNumber(undefined, { message: 'El id del rol debe ser numérico.' })
+  @IsNotEmpty({ message: 'El id del rol es requerido.' })
+  @Validate(IsUnique, ['user', 'role_id'], {
+    message: 'Rol no encontrado o id incorrecto',
+  })
+  role_id!: number;
 
-    @IsString()
-    @IsNotEmpty()
-    email:         String @unique;
+  @IsEmail(undefined, {
+    message: 'Debe ser un correo válido.',
+  })
+  @IsNotEmpty({
+    message: 'El correo es requerido.',
+  })
+  @Validate(IsUnique, ['user', 'email'], {
+    message: 'Este correo ya existe, por favor use otro',
+  })
+  email!: string;
 
-    @IsString()
-    @IsNotEmpty()
-    dni:           number;
+  @IsString({
+    message: 'La cédula debe ser tipo texto.',
+  })
+  @IsNotEmpty({
+    message: 'La cédula es requerida.',
+  })
+  dni!: number;
 
-    @IsString()
-    @IsNotEmpty()
-    phone_1:       String
+  @IsString({
+    message: 'El primer teléfono debe ser texto.',
+  })
+  @IsNotEmpty({
+    message: 'El primer teléfono es requerido.',
+  })
+  phone_1!: string;
 
-    @IsString()
-    @IsNotEmpty()
-    phone_2:       String?
-    
-    @IsString()
-    @IsNotEmpty()
-    password: string;
+  @IsString({
+    message: 'El segundo teléfono debe ser texto.',
+  })
+  phone_2!: string;
+
+  @IsString({
+    message: 'La clave debe ser texto',
+  })
+  @IsNotEmpty({
+    message: 'La clave es requerida',
+  })
+  password!: string;
 }

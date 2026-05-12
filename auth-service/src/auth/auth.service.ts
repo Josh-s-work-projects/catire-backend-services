@@ -1,8 +1,7 @@
+import * as bcrypt from 'bcrypt';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
-import * as bcrypt from 'bcrypt';
-import { UserEntity } from './user';
 import { JwtService } from '@nestjs/jwt';
 import { PayloadEntity, PayloadFull } from './payload';
 import RefreshTokenDto from './dto/refresh.dto';
