@@ -1,13 +1,10 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
-import { UserEntity } from './user';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { PayloadEntity, PayloadFull } from './payload';
-import RefreshTokenDto from './dto/refresh.dto';
-import { SECRET } from 'constants/jwt-key';
-
+import { RefreshTokenDTO, AccessTokenDTO } from './dto/jwt.dto';
+import { User } from '@prisma/client';
+import AuthDTO from './dto/auth.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -15,42 +12,51 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(body: CreateUserDto) {
+  async validateUser(body: AuthDTO): Promise<User | null> {
     try {
-      const user = await this.userService.findOneUser(body.full_name);
+      const user = await this.userService.findOneUser(body.email);
+      if (!user) return null;
+
       const matchResult = await bcrypt.compare(
-        body.password,
-        user?.password ?? '',
+        String(body.password),
+        String(user.password),
       );
       if (user && matchResult) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { password, ...result } = user;
-        return result;
+        return user;
       }
       return null;
     } catch (error) {
-      if (error instanceof Error)
-        throw new InternalServerErrorException(error.message);
+      console.log('Error', error);
+      return null;
     }
   }
 
-  login(user: UserEntity) {
-    const payload: PayloadEntity = { username: user.username, sub: user.id };
+  async login(payload: AuthDTO): Promise<AccessTokenDTO> {
+    const user = await this.validateUser(payload);
+    if (user) {
+      const payload = { sub: user.id, username: user.email };
+
+      return {
+        access_token: await this.jwtService.signAsync(payload),
+        error: '',
+      };
+    }
+
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: '',
+      error: 'Credenciales incorrectas. Intenta nuevamente',
     };
   }
 
-  async refreshToken(body: RefreshTokenDto) {
+  async refreshToken(body: RefreshTokenDTO) {
     try {
-      const payload: PayloadFull = await this.jwtService.verifyAsync(
+      const payload = await this.jwtService.verifyAsync<User>(
         body.refreshToken,
       );
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { exp, iat, ...result } = payload;
-      const refreshToken = await this.jwtService.signAsync(result, {
-        secret: SECRET,
-        expiresIn: '22hrs',
+
+      const refreshToken = await this.jwtService.signAsync(payload, {
+        secret: process.env.JWT_SECRET,
+        expiresIn: '1hrs',
       });
       return { refreshToken };
     } catch (error) {
