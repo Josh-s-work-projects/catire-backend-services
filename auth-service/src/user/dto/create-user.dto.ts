@@ -3,6 +3,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsString,
+  Min,
   Validate,
 } from 'class-validator';
 import { IsUnique } from 'src/prisma/validator/IsUnique.validator';
@@ -55,6 +56,9 @@ export class CreateUserDto {
   })
   @IsNotEmpty({
     message: 'La clave es requerida',
+  })
+  @Min(6, {
+    message: 'La clave debe tener un mínimo de 6 caracteres.',
   })
   password!: string;
 }

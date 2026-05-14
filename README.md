@@ -23,7 +23,7 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
 - [docker-compose.yml](docker-compose.yml) — Servicios para despliegue local
 - [Dockerfile.dev](Dockerfile.dev) — Definicion de Docker en dev (raíz)
 
-**Guia de preparacion**
+## Guia de preparacion
 
 - Prepara la variable de entorno raiz:
 
@@ -93,7 +93,81 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
   \d
   ```
 
-**Notas específicas por servicio**
+## Pasos en desarrollo
+
+  Al iniciar el proyecto y querer ejecutar los microservicios, use el siguiente comando:
+
+  Windows:
+  ```
+  docker compose up -d
+  ```
+
+  Linux:
+  ```
+  sudo docker-compose up -d
+  ```
+
+  Si todos los pasos anteriores fueron correctos, podra consultar un servicio y sus salidas (no deberia ver errores). Por ejemplo:
+
+  ```
+  docker logs -f auth-service
+  ```
+
+  Al hacer algun cambio, es recomendado reiniciar los contenedores para asegurar un cambio asegurado:
+
+  Windows:
+  ```
+  docker compose down && docker compose up -d
+  ```
+
+  Linux:
+  ```
+  sudo docker-compose down && sudo docker-compose up -d
+  ```
+
+  Asi mismo, es recomendado volver a generar los clientes de prisma en caso de modificar algo de la base de datos. Por ejemplo:
+
+  Windows:
+  ```
+  docker exec -it auth-service npx prisma generate
+  cd .\auth-service\ && npx prisma generate && cd ..
+  ```
+
+  Linux:
+  ```
+  sudo docker exec -it auth-service npx prisma generate
+  cd auth-service/ && sudo npx prisma generate && cd ..
+  ```
+
+## Posibles soluciones a errores
+
+  - Compruebe por volver a ejecutar el script **prepare-microservices** (.bat para windows, .sh para linux).
+  
+  - Vuelva a ejecutar el contenedor pero desde cero:
+
+    Windows:
+    ```
+    docker compose down && docker compose up -d --build
+    ```
+
+    Linux:
+    ```
+    sudo docker-compose down && sudo docker-compose up -d --build
+    ```
+
+  - Considere eliminar las carpetas **node_modules** y **dist** de cada microservicio y volver a generar los contenedores, limpiando por completo docker para un reinicio masivo (OJO: solo hacerlo en casos necesarios, no todo el tiempo):
+
+    Windows:
+    ```
+    docker compose down -v && docker compose rm -fsv && docker builder prune && docker compose up -d --build
+    ```
+
+    Linux:
+    ```
+    sudo docker-compose down -v && sudo docker-compose rm -fsv && sudo docker builder prune && sudo docker-compose up -d --build
+    ```
+
+## Notas específicas por servicio
 - `auth-service`: maneja login, refresh tokens, creación de usuarios y validación de permisos.
   - Revisa `src/main.ts` y `.env` para puerto y variables (JWT_SECRET, DB_URI).
 - `catalog-service`: gestiona productos, categorías y búsquedas.
@@ -101,17 +175,5 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
 - `order-service`: crea y maneja flujo de pedidos (estado, pagos, notificaciones).
   - Puede requerir integración con `finance-config-service`.
 - `finance-config-service`: servicios y configuraciones financieras necesarias para pagos y contabilidad.
-
-En caso de ejecutar algun comando para algun microservicio, tome en cuenta el siguiente comando:
-  
-  Linux:
-  ```
-  sudo docker-compose run --rm <nombre-servicio> <comando>
-  ```
-
-  Windows:
-  ```
-  docker-compose run --rm <nombre-servicio> <comando>
-  ```
 ---
 Fecha de generación: 2026-04-23
