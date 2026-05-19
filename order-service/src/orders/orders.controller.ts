@@ -11,7 +11,7 @@ import {
 import { OrdersService } from './orders.service';
 import { CreateOrderDTO } from './dto/create-order.dto';
 import { UpdateOrderDTO } from './dto/update-order.dto';
-import { Order } from '../generated/postgres-client';
+import { Order } from 'src/generated/postgres-client';
 import { type Response } from 'express';
 import axios from 'axios';
 import PDFDocument from 'pdfkit';

@@ -4,7 +4,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../prisma-postgres.service';
 
 @ValidatorConstraint({
   name: 'IsUnique',

@@ -1,12 +1,14 @@
 import { Global, Module } from '@nestjs/common';
-import { PrismaService } from './prisma.service';
+import { PrismaService as PrismaPostgresService } from './prisma-postgres.service';
+import { PrismaService as PrismaMongoService } from './prisma-mongo.service';
 import { IsRelationship } from './validator/IsRelationship.validator';
 import { IsUnique } from './validator/IsUnique.validator';
 
 @Global()
 @Module({
   providers: [
-    PrismaService,
+    PrismaPostgresService,
+    PrismaMongoService,
     {
       provide: IsRelationship,
       useClass: IsRelationship,
@@ -16,6 +18,11 @@ import { IsUnique } from './validator/IsUnique.validator';
       useClass: IsUnique,
     },
   ],
-  exports: [PrismaService, IsRelationship, IsUnique],
+  exports: [
+    PrismaPostgresService,
+    PrismaMongoService,
+    IsRelationship,
+    IsUnique,
+  ],
 })
 export class PrismaModule {}

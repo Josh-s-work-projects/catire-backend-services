@@ -11,7 +11,7 @@ import {
 import { PurchasesService } from './purchases.service';
 import { CreatePurchaseDTO } from './dto/create-purchase.dto';
 import { UpdatePurchaseDTO } from './dto/update-purchase.dto';
-import { Purchase } from '../generated/postgres-client';
+import { Purchase } from 'src/generated/postgres-client';
 import { type Response } from 'express';
 import PDFDocument from 'pdfkit';
 
