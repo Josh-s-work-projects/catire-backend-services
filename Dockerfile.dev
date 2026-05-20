@@ -15,6 +15,9 @@ RUN npx prisma generate --schema=./prisma/schema.prisma || true; \
 	npx prisma generate --schema=./prisma/postgres/schema.prisma || true; \
 	npx prisma generate --schema=./prisma/mongo/schema.prisma || true
 
+# Build production bundle so `dist` contains generated clients (assets)
+RUN npm run build
+
 EXPOSE 3000
 
-CMD ["npm", "run", "start:dev"]
+CMD ["npm", "run", "start:prod"]
