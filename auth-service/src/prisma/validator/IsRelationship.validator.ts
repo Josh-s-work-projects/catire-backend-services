@@ -20,8 +20,14 @@ export class IsRelationship implements ValidatorConstraintInterface {
   ): Promise<boolean> {
     const [model, field] = validationArguments?.constraints as [string, string];
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const obj = await this.prisma[model].findFirst({
+    const modelClient = (
+      this.prisma as unknown as Record<
+        string,
+        { findFirst: (args: any) => Promise<Record<string, any> | null> }
+      >
+    )[model];
+
+    const obj = await modelClient.findFirst({
       where: { [field]: value },
       select: { [field]: true },
     });

@@ -1,8 +1,11 @@
 import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class CreatePurchaseDTO {
-  @IsNumber(undefined, { message: 'El id de la orden debe ser numérico.' })
-  order_id!: number;
+  @IsString()
+  order_id!: string;
+
+  @IsNumber({}, { message: 'El ID de usuario debe ser numérico.' })
+  user_id!: number;
 
   @IsNumber({}, { message: 'El valor base debe ser numérico.' })
   @Min(0)
@@ -19,4 +22,8 @@ export class CreatePurchaseDTO {
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @IsOptional()
+  @IsString()
+  invoice_number?: string;
 }

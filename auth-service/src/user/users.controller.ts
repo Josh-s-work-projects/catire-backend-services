@@ -32,7 +32,10 @@ export class UsersController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() body: UpdateUserDTO): Promise<User | null> {
+  async update(
+    @Param('id') id: string,
+    @Body() body: UpdateUserDTO,
+  ): Promise<User | null> {
     return this.service.updateUser(Number(id), body);
   }
 

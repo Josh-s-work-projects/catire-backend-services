@@ -5,7 +5,7 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
 **Resumen**
 - Proyecto: conjunto de microservicios (NestJS) que componen la API del proyecto.
 - Estructura principal: cada microservicio está en su propia carpeta (por ejemplo: `auth-service`, `catalog-service`, `order-service`, `finance-config-service`).
-- Configuracion: [docker-compose.yml](docker-compose.yml) y desarrollo local con Node.js.
+- Configuracion: [docker compose.yml](docker compose.yml) y desarrollo local con Node.js.
 
 **Requisitos**
 - Node.js LTS (recomendado v18 o superior)
@@ -20,7 +20,7 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
 - [order-service](order-service) — Gestion de pedidos de los productos
 - [finance-config-service](finance-config-service) — Configuracion/Pagos
 - [nginx](nginx) — API Gateway (punto de partida)
-- [docker-compose.yml](docker-compose.yml) — Servicios para despliegue local
+- [docker compose.yml](docker compose.yml) — Servicios para despliegue local
 - [Dockerfile.dev](Dockerfile.dev) — Definicion de Docker en dev (raíz)
 
 ## Guia de preparacion
@@ -41,12 +41,12 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
 
   Linux:
   ```
-  sudo docker-compose up -d --build
+  sudo docker compose up -d --build
   ```
 
   Windows (Asegurate de abrir el Docker Desktop para iniciar el engine de Docker):
   ```
-  docker-compose up -d --build
+  docker compose up -d --build
   ```
 - Configura las variables de entorno del proyecto base y de los microservicios:
 
@@ -104,7 +104,7 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
 
   Linux:
   ```
-  sudo docker-compose up -d
+  sudo docker compose up -d
   ```
 
   Si todos los pasos anteriores fueron correctos, podra consultar un servicio y sus salidas (no deberia ver errores). Por ejemplo:
@@ -122,7 +122,7 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
 
   Linux:
   ```
-  sudo docker-compose down && sudo docker-compose up -d
+  sudo docker compose down && sudo docker compose up -d
   ```
 
   Asi mismo, es recomendado volver a generar los clientes de prisma en caso de modificar algo de la base de datos. Por ejemplo:
@@ -152,7 +152,7 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
 
     Linux:
     ```
-    sudo docker-compose down && sudo docker-compose up -d --build
+    sudo docker compose down && sudo docker compose up -d --build
     ```
 
   - Considere eliminar las carpetas **node_modules** y **dist** de cada microservicio y volver a generar los contenedores, limpiando por completo docker para un reinicio masivo (OJO: solo hacerlo en casos necesarios, no todo el tiempo):
@@ -164,7 +164,7 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
 
     Linux:
     ```
-    sudo docker-compose down -v && sudo docker-compose rm -fsv && sudo docker builder prune && sudo docker-compose up -d --build
+    sudo docker compose down -v && sudo docker compose rm -fsv && sudo docker builder prune && sudo docker compose up -d --build
     ```
 
 ## Notas específicas por servicio

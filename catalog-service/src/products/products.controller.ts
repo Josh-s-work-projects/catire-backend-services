@@ -7,7 +7,10 @@ import {
   Post,
   Put,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { CheckPermission } from 'src/auth/permission.decorator';
+import { PermissionGuard } from 'src/auth/permission.guard';
 import { ProductsService } from './products.service';
 import { CreateProductDTO } from './dto/create-product.dto';
 import { UpdateProductDTO } from './dto/update-product.dto';
@@ -56,11 +59,15 @@ export class ProductsController {
   }
 
   @Post()
+  @UseGuards(PermissionGuard)
+  @CheckPermission('Products', 'create')
   async create(@Body() body: CreateProductDTO): Promise<Product> {
     return this.service.create(body);
   }
 
   @Put(':id')
+  @UseGuards(PermissionGuard)
+  @CheckPermission('Products', 'update')
   async update(
     @Param('id') id: string,
     @Body() body: UpdateProductDTO,
@@ -69,6 +76,8 @@ export class ProductsController {
   }
 
   @Delete(':id')
+  @UseGuards(PermissionGuard)
+  @CheckPermission('Products', 'delete')
   async remove(@Param('id') id: string): Promise<boolean> {
     return this.service.remove(Number(id));
   }

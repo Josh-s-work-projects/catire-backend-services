@@ -12,30 +12,30 @@ for s in "${SERVICES[@]}"; do
         echo "===================================================="
         
         pushd "$s" > /dev/null
+
+        rm -rf node_modules dist
         
         echo "[1] Instalando dependencias locales..."
-        sudo npm install
+        npm install
         
         echo "[2] Instalando dependencias en Docker..."
         sudo docker exec -i "$s" npm install
         
         if [[ "$s" == "order-service" || "$s" == "finance-config-service" ]]; then
-            
-            echo "[3] Preparar base de datos en Postgres..."
-            ACTIVE_DB=postgres npx prisma generate --schema=./prisma/postgres/schema.prisma
-            sudo docker exec -i -e ACTIVE_DB=postgres "$s" npx prisma migrate deploy --schema=./prisma/postgres/schema.prisma
-            sudo docker exec -i -e ACTIVE_DB=postgres "$s" npx prisma generate --schema=./prisma/postgres/schema.prisma
-
-            echo "[4] Preparar base de datos en MongoDB..."
-            ACTIVE_DB=mongo npx prisma generate --schema=./prisma/mongo/schema.prisma
-            sudo docker exec -i -e ACTIVE_DB=mongo "$s" npx prisma db push --schema=./prisma/mongo/schema.prisma
-            sudo docker exec -i -e ACTIVE_DB=mongo "$s" npx prisma generate --schema=./prisma/mongo/schema.prisma
+            echo "[3] Preparar base de datos..."
+            npx prisma generate
+            sudo docker exec -i "$s" npx prisma db push
+            sudo docker exec -i "$s" npx prisma generate
+            echo "[4] Reiniciando servicio en Docker para cargar cliente Prisma generado..."
+            sudo docker restart "$s"
 
         else
-            echo "[3] Preparar base de datos en Postgres..."
-            ACTIVE_DB=postgres npx prisma generate
-            sudo docker exec -i -e ACTIVE_DB=postgres "$s" npx prisma migrate deploy
-            sudo docker exec -i -e ACTIVE_DB=postgres "$s" npx prisma generate
+            echo "[3] Preparar base de datos..."
+            npx prisma generate
+            sudo docker exec -i "$s" npx prisma migrate deploy
+            sudo docker exec -i "$s" npx prisma generate
+            echo "[4] Reiniciando servicio en Docker para cargar cliente Prisma generado..."
+            sudo docker restart "$s"
         fi
         
         popd > /dev/null

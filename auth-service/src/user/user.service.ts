@@ -18,40 +18,51 @@ export class UserService {
           ...body,
           password: hash,
         },
+        include: { role: true },
       });
 
       return newUser;
-    } catch (error) {
-      console.log('ERROR: ', error);
+    } catch (error: unknown) {
+      if (error instanceof Error) console.error('ERROR: ', error.message);
+      else console.error('ERROR: ', error);
       return null;
     }
   }
 
   async findOneUser(email: string): Promise<User | null> {
     try {
-      const user = await this.prisma.user.findFirst({ where: { email } });
+      const user = await this.prisma.user.findFirst({
+        where: { email },
+        include: { role: true },
+      });
       return user;
-    } catch (error) {
-      console.log('ERROR: ', error);
+    } catch (error: unknown) {
+      if (error instanceof Error) console.error('ERROR: ', error.message);
+      else console.error('ERROR: ', error);
       return null;
     }
   }
 
   async getUserById(id: number): Promise<User | null> {
     try {
-      const user = await this.prisma.user.findFirst({ where: { id } });
+      const user = await this.prisma.user.findFirst({
+        where: { id },
+        include: { role: true },
+      });
       return user;
-    } catch (error) {
-      console.log('ERROR: ', error);
+    } catch (error: unknown) {
+      if (error instanceof Error) console.error('ERROR: ', error.message);
+      else console.error('ERROR: ', error);
       return null;
     }
   }
 
   async findAllUsers(): Promise<User[]> {
     try {
-      return await this.prisma.user.findMany();
-    } catch (error) {
-      console.log('ERROR: ', error);
+      return await this.prisma.user.findMany({ include: { role: true } });
+    } catch (error: unknown) {
+      if (error instanceof Error) console.error('ERROR: ', error.message);
+      else console.error('ERROR: ', error);
       return [];
     }
   }
@@ -67,11 +78,13 @@ export class UserService {
       const updated = await this.prisma.user.update({
         where: { id },
         data: { ...data, password: newPassword } as User,
+        include: { role: true },
       });
 
       return updated;
-    } catch (error) {
-      console.log('ERROR: ', error);
+    } catch (error: unknown) {
+      if (error instanceof Error) console.error('ERROR: ', error.message);
+      else console.error('ERROR: ', error);
       return null;
     }
   }
@@ -80,8 +93,9 @@ export class UserService {
     try {
       await this.prisma.user.delete({ where: { id } });
       return true;
-    } catch (error) {
-      console.log('ERROR: ', error);
+    } catch (error: unknown) {
+      if (error instanceof Error) console.error('ERROR: ', error.message);
+      else console.error('ERROR: ', error);
       return false;
     }
   }

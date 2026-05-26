@@ -1,4 +1,4 @@
-import { IsNumber, IsString, IsUrl, Min, Validate } from 'class-validator';
+import { IsNumber, IsString, Min, Validate } from 'class-validator';
 import { IsRelationship } from 'src/prisma/validator/IsRelationship.validator';
 
 export class CreateProductDTO {

@@ -5,7 +5,7 @@ export class RefreshTokenDTO {
     message: 'El token debe ser de tipo texto.',
   })
   @IsNotEmpty({
-    message: 'El token es requerido,',
+    message: 'El token es requerido.',
   })
   refreshToken!: string;
 }
@@ -16,4 +16,19 @@ export class AccessTokenDTO {
 
   @IsString()
   error!: string;
+}
+
+export class TokenPairDTO {
+  @IsString()
+  access_token!: string;
+
+  @IsString()
+  refresh_token!: string;
+
+  error?: string;
+}
+
+export class LogoutDTO {
+  @IsString()
+  refreshToken!: string;
 }

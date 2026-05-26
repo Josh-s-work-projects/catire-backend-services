@@ -12,37 +12,49 @@ model Branch {
   coordinates_long Float @unique
   coordinates_lat  Float @unique
   menus            Menu[]
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  deleted_at       DateTime?
 
   @@map("branches")
 }
 
 model Menu {
   id        Int       @id @default(autoincrement())
-  name      String
+  name      String    @unique
   branch_id Int
   branch    Branch    @relation(fields: [branch_id], references: [id])
   products  Product[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  deleted_at DateTime?
 
   @@map("menus")
 }
 
 model Category {
-  id       Int       @id @default(autoincrement())
-  name     String
+  id       Int        @id @default(autoincrement())
+  name     String     @unique
   products Product[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  deleted_at DateTime?
 
   @@map("categories")
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   menu_id     Int
-  name        String
+  name        String    @unique
   img_src     String
   base_price  Float
   category_id Int
-  category    Category @relation(fields: [category_id], references: [id])
-  menu        Menu     @relation(fields: [menu_id], references: [id])
+  category    Category  @relation(fields: [category_id], references: [id])
+  menu        Menu      @relation(fields: [menu_id], references: [id])
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  deleted_at DateTime?
 
   @@map("products")
 }
