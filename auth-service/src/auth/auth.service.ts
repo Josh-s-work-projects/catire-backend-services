@@ -11,6 +11,8 @@ import { RefreshTokenDTO, AccessTokenDTO, TokenPairDTO } from './dto/jwt.dto';
 import { User } from '@prisma/client';
 import AuthDTO from './dto/auth.dto';
 import { Payload } from './strategy/jwt.strategy';
+import { UserRole } from 'src/types/user';
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -41,10 +43,7 @@ export class AuthService {
   async login(payload: AuthDTO): Promise<TokenPairDTO | AccessTokenDTO> {
     const user = await this.validateUser(payload);
     if (!user) {
-      return {
-        access_token: '',
-        error: 'Credenciales incorrectas. Intenta nuevamente',
-      };
+      throw new UnauthorizedException('Correo o clave incorrectos.');
     }
 
     return await this.issueTokens(user);
@@ -70,10 +69,9 @@ export class AuthService {
   public async issueTokens(user: User): Promise<TokenPairDTO> {
     const payload: Payload = { userId: user.id, username: user.email };
     const access_token = await this.jwtService.signAsync(payload);
-
     const refresh_token = await this.createAndSaveRefreshToken(user);
 
-    return { access_token, refresh_token, error: '' };
+    return { access_token, refresh_token, message: '' };
   }
 
   async refreshToken(body: RefreshTokenDTO) {
@@ -123,7 +121,7 @@ export class AuthService {
     }
   }
 
-  async verifyToken(token: string) {
+  async verifyToken(token: string): Promise<UserRole | null> {
     try {
       if (!token) return null;
       const payload = await this.jwtService.verifyAsync<Payload>(token, {

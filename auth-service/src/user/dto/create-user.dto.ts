@@ -3,62 +3,54 @@ import {
   IsNotEmpty,
   IsNumber,
   IsString,
-  Min,
+  MinLength,
   Validate,
 } from 'class-validator';
 import { IsUnique } from 'src/prisma/validator/IsUnique.validator';
 export class CreateUserDto {
-  @IsString({ message: 'El nombre completo debe ser de texto.' })
-  @IsNotEmpty({ message: 'El nombre completo es requerido.' })
+  @IsString({ message: 'full_name: El nombre completo debe ser de texto.' })
+  @IsNotEmpty({ message: 'full_name: El nombre completo es requerido.' })
   full_name!: string;
 
-  @IsNumber(undefined, { message: 'El id del rol debe ser numérico.' })
-  @IsNotEmpty({ message: 'El id del rol es requerido.' })
+  @IsNumber(undefined, { message: 'role_id: El id del rol debe ser numérico.' })
+  @IsNotEmpty({ message: 'role_id: El id del rol es requerido.' })
   @Validate(IsUnique, ['user', 'role_id'], {
     message: 'Rol no encontrado o id incorrecto',
   })
   role_id!: number;
 
   @IsEmail(undefined, {
-    message: 'Debe ser un correo válido.',
+    message: 'email: Debe ser un correo válido.',
   })
   @IsNotEmpty({
-    message: 'El correo es requerido.',
+    message: 'email: El correo es requerido.',
   })
   @Validate(IsUnique, ['user', 'email'], {
-    message: 'Este correo ya existe, por favor use otro',
+    message: 'email: Este correo ya existe, por favor use otro',
   })
   email!: string;
 
-  @IsString({
-    message: 'La cédula debe ser tipo texto.',
-  })
-  @IsNotEmpty({
-    message: 'La cédula es requerida.',
-  })
+  @IsNumber(undefined, { message: 'dni: La cédula debe ser numérica.' })
+  @IsNotEmpty({ message: 'dni: La cédula es requerida.' })
   dni!: number;
 
   @IsString({
-    message: 'El primer teléfono debe ser texto.',
+    message: 'phone_1: El primer teléfono debe ser texto.',
   })
   @IsNotEmpty({
-    message: 'El primer teléfono es requerido.',
+    message: 'phone_1: El primer teléfono es requerido.',
   })
   phone_1!: string;
 
   @IsString({
-    message: 'El segundo teléfono debe ser texto.',
+    message: 'phone_2: El segundo teléfono debe ser texto.',
   })
   phone_2!: string;
 
-  @IsString({
-    message: 'La clave debe ser texto',
-  })
-  @IsNotEmpty({
-    message: 'La clave es requerida',
-  })
-  @Min(6, {
-    message: 'La clave debe tener un mínimo de 6 caracteres.',
+  @IsString({ message: 'password: La clave debe ser texto' })
+  @IsNotEmpty({ message: 'password: La clave es requerida' })
+  @MinLength(6, {
+    message: 'password: La clave debe tener un mínimo de 6 caracteres.',
   })
   password!: string;
 }

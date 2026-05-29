@@ -16,10 +16,12 @@ import { UpdatePurchaseDTO } from './dto/update-purchase.dto';
 import { Purchase } from '@prisma/client';
 import { type Response } from 'express';
 import PDFDocument from 'pdfkit';
-import { CheckPermission } from 'src/auth/permission.decorator';
-import { PermissionGuard } from 'src/auth/permission.guard';
-import { type Request as TypedRequest } from 'src/types/request';
+import { CheckPermission } from '../auth/permission.decorator';
+import { PermissionGuard } from '../auth/permission.guard';
+import { RemoteAuthGuard } from '../auth/remote-auth.guard';
+import { type Request as TypedRequest } from '../types/request';
 
+@UseGuards(RemoteAuthGuard, PermissionGuard)
 @Controller('api/finance/purchases')
 export class PurchasesController {
   constructor(private service: PurchasesService) {}
@@ -33,6 +35,8 @@ export class PurchasesController {
   }
 
   @Get('report')
+  @UseGuards(PermissionGuard)
+  @CheckPermission('Purchases', 'read')
   async report(@Res() res: Response): Promise<void> {
     const purchases = await this.service.findAll();
 

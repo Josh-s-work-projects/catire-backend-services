@@ -8,13 +8,15 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { CheckPermission } from 'src/auth/permission.decorator';
-import { PermissionGuard } from 'src/auth/permission.guard';
+import { CheckPermission } from '../auth/permission.decorator';
+import { PermissionGuard } from '../auth/permission.guard';
+import { RemoteAuthGuard } from '../auth/remote-auth.guard';
 import { BranchesService } from './branches.service';
 import { Branch } from '@prisma/client';
 import { CreateBranchDTO } from './dto/create-branch.dto';
 import { UpdateBranchDTO } from './dto/update-branch.dto';
 
+@UseGuards(RemoteAuthGuard, PermissionGuard)
 @Controller('branches')
 export class BranchesController {
   constructor(private readonly branchesService: BranchesService) {}
@@ -27,11 +29,15 @@ export class BranchesController {
   }
 
   @Get()
+  @UseGuards(PermissionGuard)
+  @CheckPermission('Branches', 'read')
   async findAll(): Promise<Branch[]> {
     return await this.branchesService.getAll();
   }
 
   @Get(':id')
+  @UseGuards(PermissionGuard)
+  @CheckPermission('Branches', 'read')
   async findOne(@Param('id') id: string): Promise<Branch | null> {
     return await this.branchesService.findOne(+id);
   }

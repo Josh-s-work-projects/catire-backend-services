@@ -1,14 +1,19 @@
-import { Controller, Get, Res } from '@nestjs/common';
+import { Controller, Get, Res, UseGuards } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { type Response } from 'express';
 import { User } from '@prisma/client';
 import PDFDocument from 'pdfkit';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PermissionGuard } from '../auth/permission.guard';
+import { CheckPermission } from '../auth/permission.decorator';
 
-@Controller('api/auth/users')
+@UseGuards(JwtAuthGuard, PermissionGuard)
+@Controller('users')
 export class UsersReportController {
   constructor(private prisma: PrismaService) {}
 
   @Get('report')
+  @CheckPermission('Users', 'read')
   async report(@Res() res: Response) {
     const users = (await this.prisma.user.findMany({
       include: { role: true },

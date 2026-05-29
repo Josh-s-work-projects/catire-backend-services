@@ -8,12 +8,14 @@ import {
   Delete,
   UseGuards,
 } from '@nestjs/common';
-import { CheckPermission } from 'src/auth/permission.decorator';
-import { PermissionGuard } from 'src/auth/permission.guard';
+import { CheckPermission } from '../auth/permission.decorator';
+import { PermissionGuard } from '../auth/permission.guard';
+import { RemoteAuthGuard } from '../auth/remote-auth.guard';
 import { MenusService } from './menus.service';
 import { CreateMenuDTO } from './dto/create-menu.dto';
 import { UpdateMenuDTO } from './dto/update-menu.dto';
 
+@UseGuards(RemoteAuthGuard, PermissionGuard)
 @Controller('menus')
 export class MenusController {
   constructor(private readonly menusService: MenusService) {}
@@ -26,11 +28,15 @@ export class MenusController {
   }
 
   @Get()
+  @UseGuards(PermissionGuard)
+  @CheckPermission('Menus', 'read')
   findAll() {
     return this.menusService.findAll();
   }
 
   @Get(':id')
+  @UseGuards(PermissionGuard)
+  @CheckPermission('Menus', 'read')
   findOne(@Param('id') id: string) {
     return this.menusService.findOne(+id);
   }

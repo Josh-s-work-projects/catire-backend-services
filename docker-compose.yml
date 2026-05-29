@@ -69,6 +69,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@catire_postgres_db:5432/catire_catalog_db
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
+      - AUTH_SERVICE_URL=http://auth-service:3000
     depends_on:
       - catire_postgres_db
     networks:
@@ -88,6 +89,7 @@ services:
       - 'MONGO_URL=mongodb://catire_audit_db:27017/catire_order_db?replicaSet=rs0&retryWrites=true&w=majority'
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
+      - AUTH_SERVICE_URL=http://auth-service:3000
     depends_on:
       - catire_audit_db
     networks:
@@ -107,6 +109,7 @@ services:
       - MONGO_URL=mongodb://catire_config_db:27017/catire_finance_config_db
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
+      - AUTH_SERVICE_URL=http://auth-service:3000
     depends_on:
       - catire_config_db
     networks:

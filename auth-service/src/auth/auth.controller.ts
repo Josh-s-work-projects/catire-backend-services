@@ -8,16 +8,16 @@ import {
 } from '@nestjs/common';
 import { UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './guards/local-auth.guard';
 import { UserService } from 'src/user/user.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { LogoutDTO, RefreshTokenDTO } from './dto/jwt.dto';
+import { LogoutDTO, PermissionCheckDTO, RefreshTokenDTO } from './dto/jwt.dto';
 import { type Request as TypedRequest } from 'src/types';
 import { User } from '@prisma/client';
-import { DefaultPermissions, Role } from 'prisma/types';
+import AuthDTO from './dto/auth.dto';
+import { Module, ModulesPermissions, Permission } from 'src/types/permissions';
 
-@Controller('auth')
+@Controller()
 export class AuthController {
   constructor(
     private authService: AuthService,
@@ -29,10 +29,9 @@ export class AuthController {
     return await this.userService.createUser(body);
   }
 
-  @UseGuards(LocalAuthGuard)
   @Post('/login')
-  login(@Request() req: TypedRequest) {
-    return this.authService.issueTokens(req.user);
+  async loginDirect(@Body() body: AuthDTO) {
+    return await this.authService.login(body);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -69,14 +68,10 @@ export class AuthController {
   }
 
   @Post('/validate')
-  async validateToken(
-    @Body('token') token: string,
-    @Request() req: TypedRequest,
-  ) {
+  async validateToken(@Body('token') token: string) {
     // allow token via body or Authorization header
     if (!token) {
-      const header = req.headers.authorization;
-      if (header && header.startsWith('Bearer ')) token = header.slice(7);
+      throw new UnauthorizedException('El token es requerido');
     }
 
     const info = await this.authService.verifyToken(token);
@@ -85,33 +80,22 @@ export class AuthController {
   }
 
   @Post('/check-permission')
-  async checkPermission(
-    @Body() body: { token?: string; module: string; action: string },
-    @Request() req: TypedRequest,
-  ) {
-    let token: string = '';
-    const header = req.headers.authorization;
-    if (header && header.startsWith('Bearer ')) {
-      token = header.slice(7);
-    } else if (body.token) {
-      token = body.token;
-    }
+  async checkPermission(@Body() body: PermissionCheckDTO) {
+    const info = await this.authService.verifyToken(body.token);
+    if (!info) return { allowed: false, message: 'Token inválido' };
 
-    const info = await this.authService.verifyToken(token);
-    if (!info) throw new UnauthorizedException('Token inválido');
-
-    // fetch role's permissions JSON from DB
-    const roleId = info.role_id ?? null;
+    const roleId = info.role_id;
     if (!roleId) return { allowed: false, message: 'Rol no encontrado' };
 
     const role = await this.authService.getRoleById(roleId);
     if (!role) return { allowed: false, message: 'Rol no encontrado' };
 
-    const perms = role.permissions_json as DefaultPermissions;
-    const modulePerm = perms[role.name as Role];
+    const perms = role.permissions_json as ModulesPermissions;
+    const modulePerm = perms[body.module as Module];
     const allowed =
-      Array.isArray(modulePerm) && modulePerm.includes(body.action);
+      Array.isArray(modulePerm) &&
+      modulePerm.includes(body.action as Permission);
 
-    return { allowed, role, user: info };
+    return { allowed, user: info };
   }
 }

@@ -68,7 +68,7 @@ Para entornos donde no quieres aplicar migraciones automáticas (por ejemplo CI/
 - Login (dev - devuelve `access_token` y `refresh_token`):
 
 ```bash
-curl -X POST http://localhost:3000/auth/login \
+curl -X POST http://localhost/api/auth/login \
  -H 'Content-Type: application/json' \
  -d '{"username":"client@example.com","password":"Password123!"}'
 ```
@@ -76,7 +76,7 @@ curl -X POST http://localhost:3000/auth/login \
 - Refrescar tokens:
 
 ```bash
-curl -X POST http://localhost:3000/auth/refresh-token \
+curl -X POST http://localhost/api/auth/refresh-token \
  -H 'Content-Type: application/json' \
  -d '{"refreshToken":"<REFRESH_TOKEN_AQUI>"}'
 ```
@@ -84,7 +84,7 @@ curl -X POST http://localhost:3000/auth/refresh-token \
 - Logout (revocar token específico):
 
 ```bash
-curl -X POST http://localhost:3000/auth/logout \
+curl -X POST http://localhost/api/auth/logout \
  -H 'Content-Type: application/json' \
  -d '{"refreshToken":"<REFRESH_TOKEN_AQUI>"}'
 ```
@@ -92,7 +92,7 @@ curl -X POST http://localhost:3000/auth/logout \
 - Logout all (revocar todas las sesiones del usuario autenticado):
 
 ```bash
-curl -X POST http://localhost:3000/auth/logout-all \
+curl -X POST http://localhost/api/auth/logout-all \
  -H 'Authorization: Bearer <ACCESS_TOKEN_AQUI>'
 ```
 

@@ -17,11 +17,13 @@ import { Prisma } from '@prisma/client';
 import { type Response } from 'express';
 import axios from 'axios';
 import PDFDocument from 'pdfkit';
-import { CheckPermission } from 'src/auth/permission.decorator';
-import { PermissionGuard } from 'src/auth/permission.guard';
-import { type Request as TypedRequest } from 'src/types/request';
+import { CheckPermission } from '../auth/permission.decorator';
+import { PermissionGuard } from '../auth/permission.guard';
+import { RemoteAuthGuard } from '../auth/remote-auth.guard';
+import { type Request as TypedRequest } from '../types/request';
 import { Product } from './types/Product';
 
+@UseGuards(RemoteAuthGuard, PermissionGuard)
 @Controller('api/order/orders')
 export class OrdersController {
   constructor(private service: OrdersService) {}
@@ -36,7 +38,12 @@ export class OrdersController {
   }
 
   @Get('report')
-  async report(@Res() res: Response): Promise<void> {
+  @UseGuards(PermissionGuard)
+  @CheckPermission('Orders', 'read')
+  async report(
+    @Request() req: TypedRequest,
+    @Res() res: Response,
+  ): Promise<void> {
     const orders = await this.service.findAll();
 
     const catalogUrl = process.env.CATALOG_SERVICE_URL || 'http://localhost';
@@ -51,7 +58,10 @@ export class OrdersController {
       for (const it of o.items || []) {
         requests.push(
           axios
-            .get<Product>(`${catalogUrl}/api/catalog/products/${it.product_id}`)
+            .get<Product>(
+              `${catalogUrl}/api/catalog/products/${it.product_id}`,
+              { headers: { authorization: req.headers?.authorization || '' } },
+            )
             .then((r) => ({
               orderId: o.id,
               itemId: it.id,

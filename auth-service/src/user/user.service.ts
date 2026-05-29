@@ -4,6 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from '@prisma/client';
 import { UpdateUserDTO } from './dto/update-user.dto';
+import { UserRole } from 'src/types/user';
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
@@ -43,7 +44,7 @@ export class UserService {
     }
   }
 
-  async getUserById(id: number): Promise<User | null> {
+  async getUserById(id: number): Promise<UserRole | null> {
     try {
       const user = await this.prisma.user.findFirst({
         where: { id },
