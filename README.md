@@ -93,6 +93,38 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
   \d
   ```
 
+  ## Configuracion de Mongo
+
+  Una vez verificados los contenedores, aseguramos que las bases de datos de Mongo funcionen correctamente en modo replicacion (`--replSet rs0`):
+
+  Windows:
+  ```
+  docker exec -i catire_audit_db mongosh --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'catire_audit_db:27017'}]})"
+
+  docker exec -i catire_audit_db mongosh --eval "rs.status()"
+
+  docker exec -i catire_config_db mongosh --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'catire_config_db:27017'}]})"
+
+  docker exec -i catire_config_db mongosh --eval "rs.status()"
+
+  docker exec -i order-service npx prisma db push
+  docker exec -i finance-config-service npx prisma db push
+  ```
+
+  Linux:
+  ```
+  docker exec -i catire_audit_db mongosh --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'catire_audit_db:27017'}]})"
+
+  docker exec -i catire_audit_db mongosh --eval "rs.status()"
+
+  docker exec -i catire_config_db mongosh --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'catire_config_db:27017'}]})"
+
+  docker exec -i catire_config_db mongosh --eval "rs.status()"
+
+  docker exec -i order-service npx prisma db push
+  docker exec -i finance-config-service npx prisma db push
+  ```
+
 ## Pasos en desarrollo
 
   Al iniciar el proyecto y querer ejecutar los microservicios, use el siguiente comando:
@@ -175,5 +207,6 @@ Esta es la documentacion del servidor de la app movil del Catire Hot Dog. Contie
 - `order-service`: crea y maneja flujo de pedidos (estado, pagos, notificaciones).
   - Puede requerir integración con `finance-config-service`.
 - `finance-config-service`: servicios y configuraciones financieras necesarias para pagos y contabilidad.
+
 ---
 Fecha de generación: 2026-04-23

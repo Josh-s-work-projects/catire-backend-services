@@ -29,6 +29,7 @@ services:
   catire_config_db:
     image: mongo:6-jammy
     container_name: catire_config_db
+    command: ["--replSet", "rs0", "--bind_ip_all"]
     volumes:
       - config_mongo_data:/data/db
     networks:
@@ -86,7 +87,7 @@ services:
       - ./order-service:/usr/src/app
       - /usr/src/app/node_modules
     environment:
-      - 'MONGO_URL=mongodb://catire_audit_db:27017/catire_order_db?replicaSet=rs0&retryWrites=true&w=majority'
+      - MONGO_URL=mongodb://catire_audit_db:27017/catire_order_db?replicaSet=rs0&retryWrites=true&w=majority
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
       - AUTH_SERVICE_URL=http://auth-service:3000
@@ -106,7 +107,7 @@ services:
       - ./finance-config-service:/usr/src/app
       - /usr/src/app/node_modules
     environment:
-      - MONGO_URL=mongodb://catire_config_db:27017/catire_finance_config_db
+      - MONGO_URL=mongodb://catire_config_db:27017/catire_finance_config_db?replicaSet=rs0&retryWrites=true&w=majority
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
       - AUTH_SERVICE_URL=http://auth-service:3000
