@@ -7,7 +7,11 @@ import {
   Post,
   Put,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { CheckPermission } from '../auth/permission.decorator';
+import { PermissionGuard } from '../auth/permission.guard';
+import { RemoteAuthGuard } from '../auth/remote-auth.guard';
 import { ProductsService } from './products.service';
 import { CreateProductDTO } from './dto/create-product.dto';
 import { UpdateProductDTO } from './dto/update-product.dto';
@@ -15,16 +19,21 @@ import { Product } from '@prisma/client';
 import { type Response } from 'express';
 import PDFDocument from 'pdfkit';
 
+@UseGuards(RemoteAuthGuard, PermissionGuard)
 @Controller('api/catalog/products')
 export class ProductsController {
   constructor(private service: ProductsService) {}
 
   @Get()
+  @UseGuards(PermissionGuard)
+  @CheckPermission('Products', 'read')
   async findAll(): Promise<Product[]> {
     return this.service.findAll();
   }
 
   @Get('report')
+  @UseGuards(PermissionGuard)
+  @CheckPermission('Products', 'read')
   async report(@Res() res: Response) {
     const products = await this.service.findAll();
 
@@ -51,16 +60,22 @@ export class ProductsController {
   }
 
   @Get(':id')
+  @UseGuards(PermissionGuard)
+  @CheckPermission('Products', 'read')
   async findOne(@Param('id') id: string): Promise<Product | null> {
     return this.service.findOne(Number(id));
   }
 
   @Post()
+  @UseGuards(PermissionGuard)
+  @CheckPermission('Products', 'create')
   async create(@Body() body: CreateProductDTO): Promise<Product> {
     return this.service.create(body);
   }
 
   @Put(':id')
+  @UseGuards(PermissionGuard)
+  @CheckPermission('Products', 'update')
   async update(
     @Param('id') id: string,
     @Body() body: UpdateProductDTO,
@@ -69,6 +84,8 @@ export class ProductsController {
   }
 
   @Delete(':id')
+  @UseGuards(PermissionGuard)
+  @CheckPermission('Products', 'delete')
   async remove(@Param('id') id: string): Promise<boolean> {
     return this.service.remove(Number(id));
   }

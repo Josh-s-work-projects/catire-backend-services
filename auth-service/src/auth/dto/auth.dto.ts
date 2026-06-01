@@ -1,25 +1,15 @@
-import { IsEmail, IsNotEmpty, IsString, Min } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export default class AuthDTO {
-  @IsNotEmpty({
-    message: 'El correo es requerido.',
-  })
-  @IsString({
-    message: 'El correo debe ser de tipo texto.',
-  })
-  @IsEmail(undefined, {
-    message: 'El correo debe ser válido.',
-  })
+  @IsNotEmpty({ message: 'email: El correo es requerido.' })
+  @IsString({ message: 'email: El correo debe ser de tipo texto.' })
+  @IsEmail(undefined, { message: 'email: El correo debe ser válido.' })
   email!: string;
 
-  @IsNotEmpty({
-    message: 'La clave es requerida.',
+  @IsNotEmpty({ message: 'password: La clave es requerida.' })
+  @IsString({ message: 'password: La clave debe ser de tipo texto.' })
+  @MinLength(6, {
+    message: 'password: La clave debe tener un mínimo de 6 caracteres.',
   })
-  @IsString({
-    message: 'La clave debe ser de tipo texto.',
-  })
-  @Min(6, {
-    message: 'La clave debe tener un mínimo de 6 caracteres.',
-  })
-  password!: number;
+  password!: string;
 }

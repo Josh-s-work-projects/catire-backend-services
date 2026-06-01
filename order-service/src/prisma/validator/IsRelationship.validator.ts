@@ -4,7 +4,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { PrismaService } from '../prisma-postgres.service';
+import { PrismaService } from '../prisma.service';
 
 @ValidatorConstraint({
   name: 'IsRelationship',

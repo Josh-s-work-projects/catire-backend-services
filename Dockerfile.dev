@@ -2,22 +2,15 @@ FROM node:20-alpine
 
 WORKDIR /usr/src/app
 
-RUN npm install -g @nestjs/cli
-
 COPY package*.json ./
+
 COPY prisma ./prisma
 
 RUN npm install
 
+# Generate Prisma client during image build so node_modules/.prisma is available
+RUN npx prisma generate || echo "prisma generate failed during build (may require env vars); continuing"
+
 COPY . .
 
-RUN npx prisma generate --schema=./prisma/schema.prisma || true; \
-	npx prisma generate --schema=./prisma/postgres/schema.prisma || true; \
-	npx prisma generate --schema=./prisma/mongo/schema.prisma || true
-
-# Build production bundle so `dist` contains generated clients (assets)
-RUN npm run build
-
-EXPOSE 3000
-
-CMD ["npm", "run", "start:prod"]
+CMD ["sh", "-c", "npx prisma generate || true && npm run start:dev"]

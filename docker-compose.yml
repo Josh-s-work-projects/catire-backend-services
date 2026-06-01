@@ -20,6 +20,7 @@ services:
   catire_audit_db:
     image: mongo:6-jammy
     container_name: catire_audit_db
+    command: ["--replSet", "rs0", "--bind_ip_all"]
     volumes:
       - audit_mongo_data:/data/db
     networks:
@@ -28,6 +29,7 @@ services:
   catire_config_db:
     image: mongo:6-jammy
     container_name: catire_config_db
+    command: ["--replSet", "rs0", "--bind_ip_all"]
     volumes:
       - config_mongo_data:/data/db
     networks:
@@ -46,6 +48,7 @@ services:
       - /usr/src/app/node_modules
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@catire_postgres_db:5432/catire_auth_db
+      - JWT_SECRET=${JWT_SECRET}
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
     depends_on:
@@ -67,6 +70,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@catire_postgres_db:5432/catire_catalog_db
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
+      - AUTH_SERVICE_URL=http://auth-service:3000
     depends_on:
       - catire_postgres_db
     networks:
@@ -83,12 +87,11 @@ services:
       - ./order-service:/usr/src/app
       - /usr/src/app/node_modules
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@catire_postgres_db:5432/catire_order_db
-      - MONGO_URL=mongodb://catire_audit_db:27017/catire_order_db
+      - MONGO_URL=mongodb://catire_audit_db:27017/catire_order_db?replicaSet=rs0&retryWrites=true&w=majority
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
+      - AUTH_SERVICE_URL=http://auth-service:3000
     depends_on:
-      - catire_postgres_db
       - catire_audit_db
     networks:
       - t4_network
@@ -104,12 +107,11 @@ services:
       - ./finance-config-service:/usr/src/app
       - /usr/src/app/node_modules
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@catire_postgres_db:5432/catire_finance_config_db
-      - MONGO_URL=mongodb://catire_config_db:27017/catire_finance_config_db
+      - MONGO_URL=mongodb://catire_config_db:27017/catire_finance_config_db?replicaSet=rs0&retryWrites=true&w=majority
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
+      - AUTH_SERVICE_URL=http://auth-service:3000
     depends_on:
-      - catire_postgres_db
       - catire_config_db
     networks:
       - t4_network

@@ -3,15 +3,18 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import AuthDTO from '../dto/auth.dto';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
   constructor(private authService: AuthService) {
-    super();
+    // configure passport-local to read `email` instead of `username`
+    super({ usernameField: 'email', passwordField: 'password' });
   }
 
-  async validate(payload: AuthDTO): Promise<any> {
-    const result = await this.authService.validateUser(payload);
+  async validate(email: string, password: string): Promise<User> {
+    console.log('[LocalStrategy] validate called with email=', email);
+    const result = await this.authService.validateUser({ email, password } as AuthDTO);
     if (!result) {
       throw new UnauthorizedException();
     }
