@@ -1,12 +1,49 @@
 import {
   IsArray,
   IsBoolean,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+
+export class CreateOrderDTO {
+  @IsNotEmpty({
+    message: 'user_id: El ID de usuario es obligatorio.',
+  })
+  @IsNumber(undefined, {
+    message: 'user_id: El ID de usuario debe ser numérico.',
+  })
+  user_id!: number;
+
+  @IsNotEmpty({
+    message: 'is_delivery: El valor si es delivery es obligatorio.',
+  })
+  @IsBoolean({
+    message:
+      'is_delivery: El valor de is_delivery debe ser booleano (true/false).',
+  })
+  is_delivery!: boolean;
+
+  @IsOptional()
+  @IsString({
+    message: 'notes: Las notas deben ser una cadena de texto.',
+  })
+  notes?: string;
+
+  @IsOptional()
+  address?: Record<string, any>;
+
+  @IsOptional()
+  @IsArray({
+    message: 'items: El campo items debe ser una lista valida.',
+  })
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderItemDTO)
+  items?: CreateOrderItemDTO[];
+}
 
 export class CreateOrderItemDTO {
   @IsNumber(undefined, {
@@ -49,35 +86,4 @@ export class CreateOrderItemDTO {
     message: 'line_total: El total de la línea debe ser numérico.',
   })
   line_total!: number;
-}
-
-export class CreateOrderDTO {
-  @IsOptional()
-  @IsNumber(undefined, {
-    message: 'user_id: El ID de usuario debe ser numérico.',
-  })
-  user_id?: number;
-
-  @IsBoolean({
-    message:
-      'is_delivery: El valor de is_delivery debe ser booleano (true/false).',
-  })
-  is_delivery!: boolean;
-
-  @IsOptional()
-  @IsString({
-    message: 'notes: Las notas deben ser una cadena de texto.',
-  })
-  notes?: string;
-
-  @IsOptional()
-  address?: Record<string, any>;
-
-  @IsOptional()
-  @IsArray({
-    message: 'items: El campo items debe ser una lista valida.',
-  })
-  @ValidateNested({ each: true })
-  @Type(() => CreateOrderItemDTO)
-  items?: CreateOrderItemDTO[];
 }

@@ -68,13 +68,12 @@ export class OrdersService {
     });
   }
 
-  async remove(id: string): Promise<boolean> {
-    try {
-      await this.prisma.order.delete({ where: { id } });
-      return true;
-    } catch (e) {
-      console.log(e);
-      return false;
-    }
+  async remove(
+    id: string,
+  ): Promise<Prisma.OrderGetPayload<{ include: { items: true } }>> {
+    return await this.prisma.order.delete({
+      where: { id },
+      include: { items: true },
+    });
   }
 }

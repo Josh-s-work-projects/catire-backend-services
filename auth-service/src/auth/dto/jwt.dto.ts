@@ -1,15 +1,5 @@
 import { IsIn, IsNotEmpty, IsString } from 'class-validator';
 
-export class RefreshTokenDTO {
-  @IsString({
-    message: 'refreshToken: El token debe ser de tipo texto.',
-  })
-  @IsNotEmpty({
-    message: 'refreshToken: El token es requerido.',
-  })
-  refreshToken!: string;
-}
-
 export class AccessTokenDTO {
   @IsString({
     message: 'accessToken: El token debe ser de tipo texto.',

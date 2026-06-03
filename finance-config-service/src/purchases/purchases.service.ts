@@ -33,13 +33,7 @@ export class PurchasesService {
     return await this.prisma.purchase.update({ where: { id }, data });
   }
 
-  async remove(id: string): Promise<boolean> {
-    try {
-      await this.prisma.purchase.delete({ where: { id } });
-      return true;
-    } catch (e) {
-      console.log(e);
-      return false;
-    }
+  async remove(id: string): Promise<Purchase> {
+    return await this.prisma.purchase.delete({ where: { id } });
   }
 }

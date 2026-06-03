@@ -34,27 +34,25 @@ export class PermissionGuard implements CanActivate {
     const req: Request = context.switchToHttp().getRequest();
 
     const { user, token } = await validateRequestToken(req);
+
     if (!user) throw new UnauthorizedException('Token inválido');
     req.user = user;
 
     const authUrl = process.env.AUTH_SERVICE_URL;
 
-    try {
-      const res = await axios.post<CheckPermissionResponse>(
-        `${authUrl}/check-permission`,
-        { token, module, action },
-      );
-      const data = res.data;
+    const res = await axios.post<CheckPermissionResponse>(
+      `${authUrl}/check-permission`,
+      { token, module, action },
+    );
+    const data = res.data;
 
-      if (data.allowed) {
-        if (data.user) req.user = data.user;
-        return true;
-      }
-
-      throw new ForbiddenException('Acceso denegado');
-    } catch (err) {
-      console.log(err);
-      throw new UnauthorizedException('Token inválido');
+    if (data.allowed) {
+      if (data.user) req.user = data.user;
+      return true;
     }
+
+    throw new ForbiddenException(
+      'Acceso denegado: No tienes permiso para realizar esta acción.',
+    );
   }
 }

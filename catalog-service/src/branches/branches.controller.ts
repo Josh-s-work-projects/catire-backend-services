@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { CheckPermission } from '../auth/permission.decorator';
 import { PermissionGuard } from '../auth/permission.guard';
@@ -38,24 +39,31 @@ export class BranchesController {
   @Get(':id')
   @UseGuards(PermissionGuard)
   @CheckPermission('Branches', 'read')
-  async findOne(@Param('id') id: string): Promise<Branch | null> {
-    return await this.branchesService.findOne(+id);
+  async findOne(@Param('id') id: number): Promise<Branch | null> {
+    const branch = await this.branchesService.findOne(id);
+    if (!branch) throw new NotFoundException(`Branch not found`);
+
+    return branch;
   }
 
   @Patch(':id')
   @UseGuards(PermissionGuard)
   @CheckPermission('Branches', 'update')
   async update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() updateBranchDto: UpdateBranchDTO,
   ): Promise<Branch> {
-    return await this.branchesService.update(+id, updateBranchDto);
+    const branch = await this.branchesService.update(id, updateBranchDto);
+    if (!branch) throw new NotFoundException(`Branch not found`);
+    return branch;
   }
 
   @Delete(':id')
   @UseGuards(PermissionGuard)
   @CheckPermission('Branches', 'delete')
-  async remove(@Param('id') id: string): Promise<Branch | null> {
-    return await this.branchesService.remove(+id);
+  async remove(@Param('id') id: number): Promise<Branch | null> {
+    const branch = await this.branchesService.remove(id);
+    if (!branch) throw new NotFoundException(`Branch not found`);
+    return branch;
   }
 }

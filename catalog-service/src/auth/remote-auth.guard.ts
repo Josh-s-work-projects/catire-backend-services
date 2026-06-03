@@ -21,19 +21,14 @@ export async function validateRequestToken(req: Request): Promise<Response> {
   if (!token) throw new UnauthorizedException('El token es requerido');
 
   const authUrl = process.env.AUTH_SERVICE_URL;
-  try {
-    const res = await axios.post<User>(`${authUrl}/validate`, { token });
+  const res = await axios.post<User>(`${authUrl}/validate`, { token });
 
-    console.log(res.data);
-    if (!res.data) throw new UnauthorizedException('Token inválido');
-    return {
-      user: res.data,
-      token,
-    };
-  } catch (err) {
-    console.log(err);
-    throw new UnauthorizedException('Token inválido');
-  }
+  if (!res.data) throw new UnauthorizedException('Token inválido');
+
+  return {
+    user: res.data,
+    token,
+  };
 }
 
 @Injectable()

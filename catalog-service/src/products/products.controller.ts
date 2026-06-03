@@ -2,12 +2,12 @@ import {
   Controller,
   Get,
   Param,
-  Res,
   Body,
   Post,
-  Put,
   Delete,
   UseGuards,
+  NotFoundException,
+  Patch,
 } from '@nestjs/common';
 import { CheckPermission } from '../auth/permission.decorator';
 import { PermissionGuard } from '../auth/permission.guard';
@@ -16,11 +16,9 @@ import { ProductsService } from './products.service';
 import { CreateProductDTO } from './dto/create-product.dto';
 import { UpdateProductDTO } from './dto/update-product.dto';
 import { Product } from '@prisma/client';
-import { type Response } from 'express';
-import PDFDocument from 'pdfkit';
 
 @UseGuards(RemoteAuthGuard, PermissionGuard)
-@Controller('api/catalog/products')
+@Controller('products')
 export class ProductsController {
   constructor(private service: ProductsService) {}
 
@@ -31,39 +29,13 @@ export class ProductsController {
     return this.service.findAll();
   }
 
-  @Get('report')
-  @UseGuards(PermissionGuard)
-  @CheckPermission('Products', 'read')
-  async report(@Res() res: Response) {
-    const products = await this.service.findAll();
-
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader(
-      'Content-Disposition',
-      'attachment; filename=products-report.pdf',
-    );
-
-    const doc = new PDFDocument();
-    doc.pipe(res);
-
-    doc.fontSize(18).text('Products Report', { align: 'center' });
-    doc.moveDown();
-
-    products.forEach((p) => {
-      doc.fontSize(12).text(`ID: ${p.id} - ${p.name}`);
-      doc.text(`Price: ${p.base_price}`);
-      doc.text(`Category ID: ${p.category_id}`);
-      doc.moveDown();
-    });
-
-    doc.end();
-  }
-
   @Get(':id')
   @UseGuards(PermissionGuard)
   @CheckPermission('Products', 'read')
-  async findOne(@Param('id') id: string): Promise<Product | null> {
-    return this.service.findOne(Number(id));
+  async findOne(@Param('id') id: number): Promise<Product | null> {
+    const product = await this.service.findOne(id);
+    if (!product) throw new NotFoundException(`Product not found`);
+    return product;
   }
 
   @Post()
@@ -73,20 +45,24 @@ export class ProductsController {
     return this.service.create(body);
   }
 
-  @Put(':id')
+  @Patch(':id')
   @UseGuards(PermissionGuard)
   @CheckPermission('Products', 'update')
   async update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() body: UpdateProductDTO,
   ): Promise<Product> {
-    return this.service.update(Number(id), body);
+    const product = await this.service.update(id, body);
+    if (!product) throw new NotFoundException(`Product not found`);
+    return product;
   }
 
   @Delete(':id')
   @UseGuards(PermissionGuard)
   @CheckPermission('Products', 'delete')
-  async remove(@Param('id') id: string): Promise<boolean> {
-    return this.service.remove(Number(id));
+  async remove(@Param('id') id: number): Promise<boolean> {
+    const product = await this.service.remove(id);
+    if (!product) throw new NotFoundException(`Product not found`);
+    return product;
   }
 }
