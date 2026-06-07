@@ -40,7 +40,11 @@ export class OrdersController {
     @Request() req: TypedRequest,
     @Body() body: CreateOrderDTO,
   ): Promise<Prisma.OrderGetPayload<{ include: { items: true } }>> {
-    return this.service.create({ ...body, user_id: req.user?.id });
+    return this.service.create(
+      body,
+      req.headers?.authorization || '',
+      req.user.id,
+    );
   }
 
   @UseGuards(PermissionGuard)
@@ -53,18 +57,15 @@ export class OrdersController {
   ): Promise<Prisma.OrderGetPayload<{ include: { items: true } }>> {
     const order = await this.service.findOne(id, req.user);
     if (!order) throw new NotFoundException('Order not found');
-    return this.service.update(id, body);
+    return this.service.update(id, body, req.headers?.authorization || '');
   }
 
   @UseGuards(PermissionGuard)
   @CheckPermission('Orders', 'delete')
   @Delete(':id')
-  async remove(
-    @Param('id') id: string,
-  ): Promise<Prisma.OrderGetPayload<{ include: { items: true } }>> {
+  async remove(@Param('id') id: string): Promise<void> {
     const order = await this.service.remove(id);
     if (!order) throw new NotFoundException('Order not found');
-    return order;
   }
 
   @UseGuards(PermissionGuard)

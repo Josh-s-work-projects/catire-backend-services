@@ -7,25 +7,43 @@ async function main() {
     data: {
       user_id: 1,
       is_delivery: true,
-      notes: 'Sample seeded order',
+      notes: 'Orden especial',
       address: {
-        recipient: 'Sample Customer',
-        street: '123 Sample St',
-        city: 'Sample City',
-        postalCode: '00000',
+        street: 5,
+        avenue: 10,
+        house_number: 2,
+        reference: 'Al lado de Pizza Antonio',
       },
       status: 'PENDING',
       items: {
         create: [
           {
             product_id: 1,
-            menu_id: 1,
-            name: 'Sample Product A',
-            img_src: '',
-            base_price: 5.0,
-            category_id: 1,
             quantity: 2,
-            line_total: 10.0,
+            features: [
+              {
+                name_tag: 'TYPE_MEAT',
+                value: 'Carne',
+              },
+              {
+                name_tag: 'SIZE',
+                value: 'Mediana',
+              },
+            ],
+          },
+          {
+            product_id: 2,
+            quantity: 1,
+            features: [
+              {
+                name_tag: 'TOPPINGS',
+                value: 'Queso extra',
+              },
+              {
+                name_tag: 'SAUCE',
+                value: 'Napolitana',
+              },
+            ],
           },
         ],
       },

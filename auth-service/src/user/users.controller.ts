@@ -55,9 +55,8 @@ export class UsersController {
 
   @Delete(':id')
   @CheckPermission('Users', 'delete')
-  async remove(@Param('id') id: number): Promise<boolean> {
+  async remove(@Param('id') id: number): Promise<void> {
     const user = await this.service.deleteUser(id);
     if (!user) throw new NotFoundException(`User not found`);
-    return user;
   }
 }

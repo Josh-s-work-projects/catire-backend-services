@@ -60,9 +60,8 @@ export class ProductsController {
   @Delete(':id')
   @UseGuards(PermissionGuard)
   @CheckPermission('Products', 'delete')
-  async remove(@Param('id') id: number): Promise<boolean> {
+  async remove(@Param('id') id: number): Promise<void> {
     const product = await this.service.remove(id);
     if (!product) throw new NotFoundException(`Product not found`);
-    return product;
   }
 }

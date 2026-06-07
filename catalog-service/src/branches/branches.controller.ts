@@ -61,9 +61,8 @@ export class BranchesController {
   @Delete(':id')
   @UseGuards(PermissionGuard)
   @CheckPermission('Branches', 'delete')
-  async remove(@Param('id') id: number): Promise<Branch | null> {
+  async remove(@Param('id') id: number): Promise<void> {
     const branch = await this.branchesService.remove(id);
     if (!branch) throw new NotFoundException(`Branch not found`);
-    return branch;
   }
 }

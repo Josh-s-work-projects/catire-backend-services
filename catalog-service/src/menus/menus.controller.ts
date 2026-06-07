@@ -56,9 +56,8 @@ export class MenusController {
   @Delete(':id')
   @UseGuards(PermissionGuard)
   @CheckPermission('Menus', 'delete')
-  async remove(@Param('id') id: number) {
+  async remove(@Param('id') id: number): Promise<void> {
     const menu = await this.menusService.remove(id);
     if (!menu) throw new NotFoundException(`Menu not found`);
-    return menu;
   }
 }

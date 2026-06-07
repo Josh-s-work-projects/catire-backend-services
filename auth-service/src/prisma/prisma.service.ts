@@ -5,18 +5,24 @@ import { PrismaClient } from '@prisma/client';
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
-    // Adapter and client types may not be fully resolvable in some environments
-    // cast to known shapes to avoid unsafe-call/assignment lint warnings.
-    const adapter = new PrismaPg({
-      connectionString: process.env['DATABASE_URL']!,
-    }) as unknown as object;
+    super({
+      adapter: new PrismaPg({
+        connectionString: process.env['DATABASE_URL']!,
+      }),
+    });
 
-    // Use the PrismaClient constructor parameter type so the argument is properly typed
-    const prismaOptions = { adapter } as unknown as ConstructorParameters<
-      typeof PrismaClient
-    >[0];
-
-    super(prismaOptions);
+    this.$extends({
+      query: {
+        $allModels: {
+          delete({ model, args }) {
+            return (this as any)[model].update({
+              where: args.where,
+              data: { deleted_at: new Date() },
+            });
+          },
+        },
+      },
+    });
   }
 
   async onModuleInit() {

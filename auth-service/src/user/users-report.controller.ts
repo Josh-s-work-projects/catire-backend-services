@@ -35,14 +35,14 @@ export class UsersReportController {
     const doc = new PDFDocument();
     doc.pipe(res);
 
-    doc.fontSize(18).text('Users Report', { align: 'center' });
+    doc.fontSize(18).text('Reporte de Usuarios', { align: 'center' });
     doc.moveDown();
 
     users.forEach((u) => {
       doc.fontSize(12).text(`ID: ${u.id}`);
-      doc.text(`Name: ${u.full_name ?? ''}`);
-      doc.text(`Email: ${u.email ?? ''}`);
-      doc.text(`Role: ${u.role?.name ?? ''}`);
+      doc.text(`Nombre: ${u.full_name ?? ''}`);
+      doc.text(`Correo: ${u.email ?? ''}`);
+      doc.text(`Rol: ${u.role?.name ?? ''}`);
       doc.moveDown();
     });
 

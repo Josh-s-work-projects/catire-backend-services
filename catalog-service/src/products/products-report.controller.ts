@@ -26,13 +26,13 @@ export class ProductsReportController {
     const doc = new PDFDocument();
     doc.pipe(res);
 
-    doc.fontSize(18).text('Products Report', { align: 'center' });
+    doc.fontSize(18).text('Reporte de productos', { align: 'center' });
     doc.moveDown();
 
     products.forEach((p) => {
-      doc.fontSize(12).text(`ID: ${p.id} - ${p.name}`);
-      doc.text(`Price: ${p.base_price}`);
-      doc.text(`Category ID: ${p.category_id}`);
+      doc.fontSize(12).text(`Producto: ${p.id} - ${p.name}`);
+      doc.text(`Precio: ${p.base_price}`);
+      doc.text(`Categoria: ${p.category.name}`);
       doc.moveDown();
     });
 

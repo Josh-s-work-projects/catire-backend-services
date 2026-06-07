@@ -8,7 +8,7 @@ import { UpdateProductDTO } from './dto/update-product.dto';
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(): Promise<Product[]> {
+  async findAll() {
     return this.prisma.product.findMany({
       include: { category: true },
     });

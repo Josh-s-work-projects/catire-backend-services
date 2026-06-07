@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { CreateOrderDTO } from './dto/create-order.dto';
+import { CreateOrderDTO, CreateOrderItemDTO } from './dto/create-order.dto';
 import { UpdateOrderDTO } from './dto/update-order.dto';
 import { User } from 'src/types/user';
+import axios from 'axios';
 
 @Injectable()
 export class OrdersService {
@@ -38,14 +39,17 @@ export class OrdersService {
 
   async create(
     data: CreateOrderDTO,
+    token: string,
+    user_id: number,
   ): Promise<Prisma.OrderGetPayload<{ include: { items: true } }>> {
-    // create order with optional nested items
     const { items, ...rest } = data;
-    const createData: Prisma.OrderCreateInput = { ...rest };
+    const createData: Prisma.OrderCreateInput = { ...rest, user_id };
 
     if (items && Array.isArray(items) && items.length > 0) {
-      createData.items = { create: items };
+      const sanitized = await this.getValidateItems(items, token);
+      createData.items = { create: sanitized };
     }
+
     return await this.prisma.order.create({
       data: createData,
       include: { items: true },
@@ -55,12 +59,16 @@ export class OrdersService {
   async update(
     id: string,
     data: UpdateOrderDTO,
+    token: string,
   ): Promise<Prisma.OrderGetPayload<{ include: { items: true } }>> {
     const { items, ...rest } = data;
     const updateData: Prisma.OrderUpdateInput = { ...rest };
+
     if (items && Array.isArray(items) && items.length > 0) {
-      updateData.items = { create: items };
+      const sanitized = await this.getValidateItems(items, token);
+      updateData.items = { create: sanitized };
     }
+
     return await this.prisma.order.update({
       where: { id },
       data: updateData,
@@ -68,12 +76,47 @@ export class OrdersService {
     });
   }
 
-  async remove(
-    id: string,
-  ): Promise<Prisma.OrderGetPayload<{ include: { items: true } }>> {
-    return await this.prisma.order.delete({
+  async remove(id: string) {
+    await this.prisma.orderDetails.deleteMany({
+      where: { order_id: id },
+    });
+
+    return this.prisma.order.delete({
       where: { id },
       include: { items: true },
     });
+  }
+
+  async getValidateItems(
+    items: CreateOrderItemDTO[],
+    token: string,
+  ): Promise<any[]> {
+    const sanitized = items.map(
+      async (it): Promise<CreateOrderItemDTO | undefined> => {
+        try {
+          const product = await axios.get(
+            `${process.env.CATALOG_SERVICE_URL}/products/${it.product_id}`,
+            { headers: { authorization: token } },
+          );
+          if (!product) {
+            throw new NotFoundException(
+              `Producto con ID ${it.product_id} no encontrado.`,
+            );
+          }
+          return {
+            product_id: it.product_id,
+            quantity: typeof it.quantity === 'number' ? it.quantity : 1,
+            features: it.features,
+          };
+        } catch (err) {
+          console.log(err);
+          throw new NotFoundException(
+            `Producto con ID ${it.product_id} no encontrado.`,
+          );
+        }
+      },
+    );
+
+    return await Promise.all(sanitized);
   }
 }

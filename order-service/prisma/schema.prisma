@@ -10,12 +10,12 @@ generator client {
 
 model Order {
   id           String      @id @default(auto()) @map("_id") @db.ObjectId
-  user_id      Int?
+  user_id      Int
   is_delivery  Boolean
   notes        String?
   address      Json?
-  items        OrderItem[]
-  status       OrderStatusType @default(DRAFT)
+  items        OrderDetails[]
+  status       OrderStatusType? @default(PENDING)
   created_at   DateTime    @default(now())
   updated_at   DateTime    @updatedAt
   deleted_at   DateTime?
@@ -23,26 +23,19 @@ model Order {
   @@map ("orders")
 }
 
-model OrderItem {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  order_id    String   @db.ObjectId
-  product_id  Int
-  menu_id     Int
-  name        String
-  img_src     String
-  base_price  Float
-  category_id Int
-  quantity    Int
-  line_total  Float
-  order       Order    @relation(fields: [order_id], references: [id])
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  deleted_at  DateTime?
+model OrderDetails {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  order_id      String   @db.ObjectId
+  product_id    Int
+  quantity      Int
+  features      Json[]
+  order         Order    @relation(fields: [order_id], references: [id])
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  deleted_at    DateTime?
 
-  @@map ("order_items")
+  @@map ("order_details")
 }
-
-// Removed OrderStatus history model. Current status is stored on `Order`.
 
 model UserAccess {
   id             String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -57,12 +50,18 @@ model UserAccess {
 }
 
 enum OrderStatusType {
-  DRAFT
   PENDING
   PAID
   PROCESSING
-  SHIPPED
   DELIVERED
   CANCELLED
-  REFUNDED
+}
+
+enum NameTag {
+  SIZE
+  TOPPINGS
+  TYPE_MEAT
+  TYPE_SAUSAGE
+  SAUCE
+  SODA
 }

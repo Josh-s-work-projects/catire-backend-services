@@ -15,37 +15,15 @@ export class CreatePurchaseDTO {
   })
   order_id!: string;
 
-  @IsNumber({}, { message: 'user_id: El ID de usuario debe ser numérico.' })
-  @IsNotEmpty({
-    message: 'user_id: El ID de usuario es obligatorio.',
-  })
-  user_id!: number;
-
-  @IsNumber({}, { message: 'purchase_base: El valor base debe ser numérico.' })
-  @IsNotEmpty({
-    message: 'purchase_base: El valor base es obligatorio.',
-  })
-  @Min(0)
-  purchase_base!: number;
-
   @IsNumber(
     {},
     {
       message: 'purchase_additional: El valor adicional debe ser numérico.',
     },
   )
-  @IsNotEmpty({
-    message: 'purchase_additional: El valor adicional es obligatorio.',
-  })
+  @IsOptional()
   @Min(0)
   purchase_additional!: number;
-
-  @IsNumber({}, { message: 'purchase_total: El total debe ser numérico.' })
-  @IsNotEmpty({
-    message: 'purchase_total: El total es obligatorio.',
-  })
-  @Min(0)
-  purchase_total!: number;
 
   @IsOptional()
   @IsString({

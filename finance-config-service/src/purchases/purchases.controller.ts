@@ -47,11 +47,10 @@ export class PurchasesController {
   @UseGuards(PermissionGuard)
   @CheckPermission('Purchases', 'create')
   async create(
-    @Request() req: TypedRequest,
     @Body() body: CreatePurchaseDTO,
+    @Request() req: TypedRequest,
   ): Promise<Purchase> {
-    const data = { ...body, user_id: req.user?.id };
-    return await this.service.create(data);
+    return await this.service.create(body, req.headers.authorization || '');
   }
 
   @Patch(':id')
@@ -69,9 +68,8 @@ export class PurchasesController {
   @Delete(':id')
   @UseGuards(PermissionGuard)
   @CheckPermission('Purchases', 'delete')
-  async remove(@Param('id') id: string): Promise<Purchase> {
+  async remove(@Param('id') id: string): Promise<void> {
     const purchase = await this.service.remove(id);
     if (!purchase) throw new NotFoundException('Purchase not found');
-    return purchase;
   }
 }

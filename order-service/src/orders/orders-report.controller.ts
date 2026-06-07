@@ -8,6 +8,7 @@ import { CheckPermission } from 'src/auth/permission.decorator';
 import { type Request as TypedRequest } from '../types/request';
 import { type Response } from 'express';
 import { Product } from './types/Product';
+import { AddressDTO } from './dto/create-order.dto';
 
 @UseGuards(RemoteAuthGuard, PermissionGuard)
 @Controller('orders')
@@ -36,10 +37,9 @@ export class OrdersReportController {
       for (const it of o.items || []) {
         requests.push(
           axios
-            .get<Product>(
-              `${catalogUrl}/api/catalog/products/${it.product_id}`,
-              { headers: { authorization: req.headers?.authorization || '' } },
-            )
+            .get<Product>(`${catalogUrl}/products/${it.product_id}`, {
+              headers: { authorization: req.headers?.authorization || '' },
+            })
             .then((r) => ({
               orderId: o.id,
               itemId: it.id,
@@ -71,22 +71,33 @@ export class OrdersReportController {
 
     for (const o of orders) {
       doc.fontSize(12).text(`ID de pedido: ${o.id}`);
+      doc.fontSize(12).text(`Productos:`);
       const items = o.items || [];
       for (const it of items) {
         const found = (productsByOrder[o.id] || []).find(
           (p) => p.itemId === it.id,
         );
+        const qty = typeof it.quantity === 'number' ? it.quantity : 1;
         if (found && found.product) {
+          const lineTotal = (found.product.base_price || 0) * qty;
           doc.text(
-            `- ${found.product.name} (x${it.quantity}) - ${it.line_total}`,
+            `- ${found.product.name} (x${qty}) - ${lineTotal.toFixed(2)}`,
           );
         } else {
-          doc.text(
-            `- Producto ID: ${it.product_id} (x${it.quantity}) - ${it.line_total}`,
-          );
+          doc.text(`- Producto ID: ${it.product_id} (x${qty}) - N/A`);
         }
       }
-      doc.text(`Entrega: ${o.is_delivery}`);
+      doc.text(`Es Delivery: ${o.is_delivery ? 'Sí' : 'No'}`);
+
+      if (o.is_delivery) {
+        doc.text(`Dirección: `);
+        doc.text(`- Calle: ${(o.address as AddressDTO).street}`);
+        doc.text(`- Carrera: ${(o.address as AddressDTO).avenue}`);
+        doc.text(`- Número de casa: ${(o.address as AddressDTO).house_number}`);
+        doc.text(
+          `- Referencia: ${(o.address as AddressDTO).reference || 'N/A'}`,
+        );
+      }
       if (o.notes) doc.text(`Notas: ${o.notes}`);
       doc.moveDown();
     }
