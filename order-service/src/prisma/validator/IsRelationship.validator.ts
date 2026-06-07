@@ -18,6 +18,9 @@ export class IsRelationship implements ValidatorConstraintInterface {
     value: string | number,
     validationArguments?: ValidationArguments,
   ): Promise<boolean> {
+    if (!value || value == 0) {
+      return false;
+    }
     const [model, field] = validationArguments?.constraints as [string, string];
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

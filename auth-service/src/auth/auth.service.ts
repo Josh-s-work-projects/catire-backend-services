@@ -1,13 +1,9 @@
 import * as bcrypt from 'bcrypt';
-import {
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
-import { RefreshTokenDTO, AccessTokenDTO, TokenPairDTO } from './dto/jwt.dto';
+import { AccessTokenDTO, TokenPairDTO } from './dto/jwt.dto';
 import { User } from '@prisma/client';
 import AuthDTO from './dto/auth.dto';
 import { Payload } from './strategy/jwt.strategy';
@@ -72,53 +68,6 @@ export class AuthService {
     const refresh_token = await this.createAndSaveRefreshToken(user);
 
     return { access_token, refresh_token, message: '' };
-  }
-
-  async refreshToken(body: RefreshTokenDTO) {
-    try {
-      if (!body?.refreshToken)
-        throw new UnauthorizedException('Token de refresco requerido');
-
-      // check persisted refresh token
-      type TokenRecord = {
-        id: number;
-        user_id: number;
-        token?: string;
-        deleted_at?: Date | null;
-        expires_at?: Date | null;
-      } | null;
-
-      const tokenRecord = (await this.prisma.refreshToken.findUnique({
-        where: { token: body.refreshToken },
-      })) as TokenRecord;
-      if (!tokenRecord)
-        throw new UnauthorizedException('Refresh token no encontrado');
-      if (tokenRecord.deleted_at)
-        throw new UnauthorizedException('Refresh token revocado');
-      if (tokenRecord.expires_at && tokenRecord.expires_at < new Date())
-        throw new UnauthorizedException('Refresh token expirado');
-
-      // verify signature
-      await this.jwtService.verifyAsync<Payload>(body.refreshToken, {
-        secret: process.env.JWT_SECRET,
-      });
-
-      // find associated user
-      const user = await this.userService.getUserById(
-        Number(tokenRecord.user_id),
-      );
-      if (!user) throw new UnauthorizedException('Usuario no encontrado');
-
-      // rotate refresh token: delete old and create new
-      await this.prisma.refreshToken.delete({ where: { id: tokenRecord.id } });
-
-      const tokens = await this.issueTokens(user);
-      return tokens;
-    } catch (error: unknown) {
-      if (error instanceof Error)
-        throw new InternalServerErrorException(error.message);
-      throw new InternalServerErrorException('Error al refrescar token');
-    }
   }
 
   async verifyToken(token: string): Promise<UserRole | null> {

@@ -15,12 +15,15 @@ export class MenusService {
   }
 
   async findAll(): Promise<Menu[]> {
-    return await this.prisma.menu.findMany();
+    return await this.prisma.menu.findMany({
+      include: { products: true },
+    });
   }
 
   async findOne(id: number): Promise<Menu | null> {
     return await this.prisma.menu.findUnique({
       where: { id },
+      include: { products: true },
     });
   }
 

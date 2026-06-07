@@ -1,68 +1,91 @@
 import {
   IsArray,
   IsBoolean,
+  IsEnum,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { NameTag, Prisma } from '@prisma/client';
 
-export class CreateOrderItemDTO {
-  @IsNumber(undefined, {
-    message: 'product_id: El ID del producto debe ser numérico.',
+export class AddressDTO {
+  [key: string]: Prisma.InputJsonValue | undefined;
+  @IsNotEmpty({
+    message: 'street: La calle es obligatoria.',
   })
-  product_id!: number;
-
   @IsNumber(undefined, {
-    message: 'menu_id: El ID del menú debe ser numérico.',
+    message: 'street: La calle debe ser un número.',
   })
-  menu_id!: number;
+  street!: number;
 
+  @IsNotEmpty({
+    message: 'avenue: La carrera es obligatoria.',
+  })
+  @IsNumber(undefined, {
+    message: 'avenue: La carrera debe ser un número.',
+  })
+  avenue!: number;
+
+  @IsNotEmpty({
+    message: 'house_number: El número de casa es obligatorio.',
+  })
+  @IsNumber(undefined, {
+    message: 'house_number: El número de casa debe ser un número.',
+  })
+  house_number!: number;
+
+  @IsOptional()
   @IsString({
-    message:
-      'name: El nombre del producto o menú debe ser una cadena de texto.',
+    message: 'reference: La referencia debe ser una cadena de texto.',
   })
-  name!: string;
-
-  @IsString({
-    message: 'img_src: La ruta de la imagen debe ser una cadena de texto.',
-  })
-  img_src!: string;
-
-  @IsNumber(undefined, {
-    message: 'base_price: El precio base debe ser numérico.',
-  })
-  base_price!: number;
-
-  @IsNumber(undefined, {
-    message: 'category_id: El ID de categoría debe ser numérico.',
-  })
-  category_id!: number;
-
-  @IsNumber(undefined, {
-    message: 'quantity: La cantidad debe ser numérica.',
-  })
-  quantity!: number;
-
-  @IsNumber(undefined, {
-    message: 'line_total: El total de la línea debe ser numérico.',
-  })
-  line_total!: number;
+  reference?: string;
 }
 
-export class CreateOrderDTO {
-  @IsOptional()
-  @IsNumber(undefined, {
-    message: 'user_id: El ID de usuario debe ser numérico.',
+export class FeaturesDTO {
+  @IsNotEmpty({
+    message: 'name_tag: El nombre de la caracteristica es requerida.',
   })
-  user_id?: number;
+  @IsString({
+    message:
+      'name_tag: El nombre de la caracteristica debe ser una cadena de texto.',
+  })
+  @IsEnum(NameTag, {
+    message: `name_tag: El nombre debe tener estos valores: ${Object.keys(NameTag).join(', ')}`,
+  })
+  name_tag!: NameTag;
 
+  @IsNotEmpty({
+    message: 'value: El valor de la caracteristica es requerida.',
+  })
+  @IsString({
+    message:
+      'value: El valor de la caracteristica debe ser una cadena de texto.',
+  })
+  value!: string;
+}
+export class CreateOrderDTO {
+  @IsNotEmpty({
+    message: 'is_delivery: El valor si es delivery es obligatorio.',
+  })
   @IsBoolean({
     message:
       'is_delivery: El valor de is_delivery debe ser booleano (true/false).',
   })
   is_delivery!: boolean;
+
+  @IsNotEmpty({
+    message: 'items: Los detalles de la orden son obligatorios.',
+  })
+  @IsArray({
+    message: 'items: Los detalles de la orden deben ser una lista valida.',
+  })
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderItemDTO)
+  items!: CreateOrderItemDTO[];
 
   @IsOptional()
   @IsString({
@@ -70,14 +93,37 @@ export class CreateOrderDTO {
   })
   notes?: string;
 
-  @IsOptional()
-  address?: Record<string, any>;
+  @ValidateIf((o: CreateOrderDTO) => o.is_delivery)
+  @IsNotEmpty({
+    message:
+      'address: La dirección es obligatoria para pedidos de delivery (Debe ser un objeto).',
+  })
+  @ValidateNested()
+  @Type(() => AddressDTO)
+  address!: AddressDTO;
+}
 
-  @IsOptional()
-  @IsArray({
-    message: 'items: El campo items debe ser una lista valida.',
+export class CreateOrderItemDTO {
+  @IsNotEmpty({
+    message: 'product_id: El ID del producto es obligatorio.',
+  })
+  @IsNumber(undefined, {
+    message: 'product_id: El ID del producto debe ser numérico.',
+  })
+  product_id!: number;
+
+  @IsNotEmpty({
+    message: 'quantity: La cantidad es obligatoria.',
+  })
+  @IsNumber(undefined, {
+    message: 'quantity: La cantidad debe ser numérica.',
+  })
+  quantity!: number;
+
+  @IsNotEmpty({
+    message: 'features: Las caracteristicas son requeridas.',
   })
   @ValidateNested({ each: true })
-  @Type(() => CreateOrderItemDTO)
-  items?: CreateOrderItemDTO[];
+  @Type(() => FeaturesDTO)
+  features!: FeaturesDTO[];
 }

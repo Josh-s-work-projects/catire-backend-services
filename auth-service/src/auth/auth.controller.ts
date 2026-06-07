@@ -11,7 +11,7 @@ import { AuthService } from './auth.service';
 import { UserService } from 'src/user/user.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { LogoutDTO, PermissionCheckDTO, RefreshTokenDTO } from './dto/jwt.dto';
+import { LogoutDTO, PermissionCheckDTO } from './dto/jwt.dto';
 import { type Request as TypedRequest } from 'src/types';
 import { User } from '@prisma/client';
 import AuthDTO from './dto/auth.dto';
@@ -40,30 +40,11 @@ export class AuthController {
     return await this.userService.getUserById(req.user.id);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('/refresh-token')
-  // Refresh tokens are handled via refresh token only (no access token required)
-  async refreshToken(@Body() body: RefreshTokenDTO) {
-    return await this.authService.refreshToken(body);
-  }
-
   @Post('/logout')
   async logout(@Body() body: LogoutDTO) {
     const result = await this.authService.logout(body.refreshToken);
     return {
       message: result.success ? 'Sesión cerrada' : 'No se encontró el token',
-    };
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('/logout-all')
-  async logoutAll(@Request() req: TypedRequest) {
-    const userId: number = req.user.id;
-    const result = await this.authService.logoutAll(Number(userId));
-    return {
-      message: result.success
-        ? 'Se eliminaron las sesiones'
-        : 'No se pudieron eliminar las sesiones',
     };
   }
 

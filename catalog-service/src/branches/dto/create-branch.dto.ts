@@ -8,6 +8,9 @@ export class CreateBranchDTO {
   @Validate(IsUnique, ['branch', 'name'], {
     message: 'name: El nombre ya existe.',
   })
+  @Validate(IsUnique, ['branch', 'name'], {
+    message: 'name: El nombre ya existe.',
+  })
   name!: string;
 
   @IsNumber(undefined, {

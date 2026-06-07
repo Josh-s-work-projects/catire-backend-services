@@ -1,17 +1,19 @@
-import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 
 export class CreatePurchaseDTO {
+  @IsNotEmpty({
+    message: 'order_id: El ID de la orden es obligatorio.',
+  })
   @IsString({
     message: 'order_id: El ID de la orden debe ser una cadena de texto.',
   })
   order_id!: string;
-
-  @IsNumber({}, { message: 'user_id: El ID de usuario debe ser numérico.' })
-  user_id!: number;
-
-  @IsNumber({}, { message: 'purchase_base: El valor base debe ser numérico.' })
-  @Min(0)
-  purchase_base!: number;
 
   @IsNumber(
     {},
@@ -19,12 +21,9 @@ export class CreatePurchaseDTO {
       message: 'purchase_additional: El valor adicional debe ser numérico.',
     },
   )
+  @IsOptional()
   @Min(0)
   purchase_additional!: number;
-
-  @IsNumber({}, { message: 'purchase_total: El total debe ser numérico.' })
-  @Min(0)
-  purchase_total!: number;
 
   @IsOptional()
   @IsString({

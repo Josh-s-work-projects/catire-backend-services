@@ -5,6 +5,19 @@ import { PrismaClient } from '@prisma/client';
 export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
     super();
+
+    this.$extends({
+      query: {
+        $allModels: {
+          delete({ model, args }) {
+            return (this as any)[model].update({
+              where: args.where,
+              data: { deleted_at: new Date() },
+            });
+          },
+        },
+      },
+    });
   }
 
   async onModuleInit() {

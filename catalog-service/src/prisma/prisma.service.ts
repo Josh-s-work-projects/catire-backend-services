@@ -10,6 +10,19 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
         connectionString: process.env['DATABASE_URL']!,
       }),
     });
+
+    this.$extends({
+      query: {
+        $allModels: {
+          delete({ model, args }) {
+            return (this as any)[model].update({
+              where: args.where,
+              data: { deleted_at: new Date() },
+            });
+          },
+        },
+      },
+    });
   }
 
   async onModuleInit() {

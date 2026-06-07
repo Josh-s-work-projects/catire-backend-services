@@ -55,6 +55,6 @@ export class PermissionGuard implements CanActivate {
       return true;
     }
 
-    throw new ForbiddenException('Acceso denegado: Permisos insuficientes');
+    throw new ForbiddenException('Acceso denegado: No tienes permiso para esta acción');
   }
 }
