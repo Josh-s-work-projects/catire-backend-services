@@ -2,22 +2,24 @@ import {
   IsEmail,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   MinLength,
   Validate,
 } from 'class-validator';
+import { IsRelationship } from 'src/prisma/validator/IsRelationship.validator';
 import { IsUnique } from 'src/prisma/validator/IsUnique.validator';
 export class CreateUserDto {
   @IsString({ message: 'full_name: El nombre completo debe ser de texto.' })
   @IsNotEmpty({ message: 'full_name: El nombre completo es requerido.' })
   full_name!: string;
 
+  @IsOptional()
   @IsNumber(undefined, { message: 'role_id: El id del rol debe ser numérico.' })
-  @IsNotEmpty({ message: 'role_id: El id del rol es requerido.' })
-  @Validate(IsUnique, ['user', 'role_id'], {
+  @Validate(IsRelationship, ['user', 'role_id'], {
     message: 'Rol no encontrado o id incorrecto',
   })
-  role_id!: number;
+  role_id?: number;
 
   @IsEmail(undefined, {
     message: 'email: Debe ser un correo válido.',
@@ -42,10 +44,11 @@ export class CreateUserDto {
   })
   phone_1!: string;
 
+  @IsOptional()
   @IsString({
     message: 'phone_2: El segundo teléfono debe ser texto.',
   })
-  phone_2!: string;
+  phone_2?: string;
 
   @IsString({ message: 'password: La clave debe ser texto' })
   @IsNotEmpty({ message: 'password: La clave es requerida' })
