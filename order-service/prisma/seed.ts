@@ -22,12 +22,20 @@ async function main() {
             quantity: 2,
             features: [
               {
-                name_tag: 'TYPE_MEAT',
-                value: 'Carne',
+                name_tag: 'TYPE_SAUSAGE',
+                value: 'Catirota',
+              },
+              {
+                name_tag: 'TOPPINGS',
+                value: 'Queso,Papa,Zanahoria',
               },
               {
                 name_tag: 'SIZE',
-                value: 'Mediana',
+                value: 'Normal',
+              },
+              {
+                name_tag: 'SAUCE',
+                value: 'Ketchup',
               },
             ],
           },
@@ -36,12 +44,17 @@ async function main() {
             quantity: 1,
             features: [
               {
-                name_tag: 'TOPPINGS',
-                value: 'Queso extra',
+                name_tag: 'TYPE_MEAT',
+                value: 'Croqueta de pollo,Carne',
               },
               {
-                name_tag: 'SAUCE',
-                value: 'Napolitana',
+                name_tag: 'SIZE',
+                value: 'Mixta',
+              },
+              {
+                name_tag: 'TOPPINGS',
+                value:
+                  'Lechuga,Tomate,Cebolla,Papas,Queso_tipo_gouda,Queso_rallado,Huevo_frito',
               },
             ],
           },

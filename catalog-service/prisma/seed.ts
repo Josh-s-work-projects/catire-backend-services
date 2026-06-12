@@ -1,91 +1,67 @@
 import { PrismaService } from '../src/prisma/prisma.service';
+import { BRANCHES } from './seed/branches.seed';
+import { MENUS } from './seed/menus.seed';
+import { PRODUCTS } from './seed/products.seed';
 
 const prisma = new PrismaService();
 
+const getCategoryName = (productName: string): string => {
+  if (productName.includes('Perro')) return 'Perros';
+  if (productName.includes('Hamburguesa')) return 'Hamburguesas';
+  if (productName.includes('Salchipapa')) return 'Salchipapas';
+  return 'Bebidas';
+};
+
 async function main() {
-  const branch1 = await prisma.branch.upsert({
-    where: { name: 'Branch 1' },
-    update: {},
-    create: {
-      name: 'Branch 1',
-      coordinates_long: -72.20961952403658,
-      coordinates_lat: 7.7683729580809295,
-    },
-  });
+  for (const b of BRANCHES) {
+    const branch = await prisma.branch.upsert({
+      where: { name: b.name },
+      update: {},
+      create: {
+        name: b.name,
+        coordinates_long: b.coordinates_long,
+        coordinates_lat: b.coordinates_lat,
+      },
+    });
 
-  const branch2 = await prisma.branch.upsert({
-    where: { name: 'Branch 2' },
-    update: {},
-    create: {
-      name: 'Branch 2',
-      coordinates_long: -72.22707251374922,
-      coordinates_lat: 7.782521387818282,
-    },
-  });
+    for (const m of MENUS) {
+      const menu = await prisma.menu.upsert({
+        where: { name: m.name },
+        update: {},
+        create: { name: m.name, branch_id: branch.id },
+      });
 
-  await prisma.branch.upsert({
-    where: { name: 'Branch 3' },
-    update: {},
-    create: {
-      name: 'Branch 3',
-      coordinates_long: -72.47458764413882,
-      coordinates_lat: 7.914157382429402,
-    },
-  });
+      const isPromoMenu = m.name === 'Promociones';
+      const productsForMenu = PRODUCTS.filter((p) =>
+        isPromoMenu
+          ? p.name.includes('Promocion')
+          : !p.name.includes('Promocion'),
+      );
 
-  await prisma.branch.upsert({
-    where: { name: 'Branch 4' },
-    update: {},
-    create: {
-      name: 'Branch 4',
-      coordinates_long: -72.48847070413751,
-      coordinates_lat: 7.894905770669543,
-    },
-  });
+      for (const p of productsForMenu) {
+        const catName = getCategoryName(p.name);
+        const category = await prisma.category.upsert({
+          where: { name: catName },
+          update: {},
+          create: { name: catName },
+        });
 
-  const category = await prisma.category.upsert({
-    where: { name: 'Default' },
-    update: {},
-    create: { name: 'Default' },
-  });
+        await prisma.product.upsert({
+          where: { name: p.name },
+          update: { base_price: p.base_price },
+          create: {
+            name: p.name,
+            img_src: p.img_src,
+            base_price: p.base_price,
+            menu_id: menu.id,
+            category_id: category.id,
+          },
+        });
+      }
+    }
+  }
 
-  const menuA = await prisma.menu.upsert({
-    where: { name: 'Main Menu A' },
-    update: {},
-    create: { name: 'Main Menu A', branch_id: branch1.id },
-  });
-
-  const menuB = await prisma.menu.upsert({
-    where: { name: 'Main Menu B' },
-    update: {},
-    create: { name: 'Main Menu B', branch_id: branch2.id },
-  });
-
-  await prisma.product.upsert({
-    where: { name: 'Sample Product A' },
-    update: {},
-    create: {
-      name: 'Sample Product A',
-      img_src: '',
-      base_price: 5.0,
-      menu_id: menuA.id,
-      category_id: category.id,
-    },
-  });
-
-  await prisma.product.upsert({
-    where: { name: 'Sample Product B' },
-    update: {},
-    create: {
-      name: 'Sample Product B',
-      img_src: '',
-      base_price: 7.5,
-      menu_id: menuB.id,
-      category_id: category.id,
-    },
-  });
-
-  console.log('Catalog seed completed');
+  console.log('Catalog seed completed successfully.');
 }
 
 main()
