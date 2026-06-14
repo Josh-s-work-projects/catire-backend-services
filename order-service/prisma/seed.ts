@@ -20,6 +20,7 @@ async function main() {
           {
             product_id: 1,
             quantity: 2,
+            base_price: 4.5,
             features: [
               {
                 name_tag: 'TYPE_SAUSAGE',
@@ -42,6 +43,7 @@ async function main() {
           {
             product_id: 2,
             quantity: 1,
+            base_price: 5,
             features: [
               {
                 name_tag: 'TYPE_MEAT',

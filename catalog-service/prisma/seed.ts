@@ -48,11 +48,10 @@ async function main() {
 
         await prisma.product.upsert({
           where: { name: p.name },
-          update: { base_price: p.base_price },
+          update: {},
           create: {
             name: p.name,
             img_src: p.img_src,
-            base_price: p.base_price,
             menu_id: menu.id,
             category_id: category.id,
           },

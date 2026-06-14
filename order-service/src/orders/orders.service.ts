@@ -106,6 +106,7 @@ export class OrdersService {
           return {
             product_id: it.product_id,
             quantity: typeof it.quantity === 'number' ? it.quantity : 1,
+            base_price: it.base_price,
             features: it.features,
           };
         } catch (err) {

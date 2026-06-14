@@ -6,6 +6,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Min,
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
@@ -119,6 +120,13 @@ export class CreateOrderItemDTO {
     message: 'quantity: La cantidad debe ser numérica.',
   })
   quantity!: number;
+
+  @IsNotEmpty({ message: 'base_price: El precio base es requerido.' })
+  @IsNumber(undefined, {
+    message: 'base_price: El precio base debe ser numérico.',
+  })
+  @Min(0, { message: 'base_price: El precio debe ser >= 0' })
+  base_price!: number;
 
   @IsNotEmpty({
     message: 'features: Las caracteristicas son requeridas.',

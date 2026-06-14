@@ -3,7 +3,6 @@ import {
   IsNumber,
   IsString,
   IsUrl,
-  Min,
   Validate,
 } from 'class-validator';
 import { IsRelationship } from 'src/prisma/validator/IsRelationship.validator';
@@ -42,11 +41,4 @@ export class CreateProductDTO {
     { message: 'img_src: La ruta de la imagen debe ser una URL válida.' },
   )
   img_src!: string;
-
-  @IsNotEmpty({ message: 'base_price: El precio base es requerido.' })
-  @IsNumber(undefined, {
-    message: 'base_price: El precio base debe ser numérico.',
-  })
-  @Min(0, { message: 'base_price: El precio debe ser >= 0' })
-  base_price!: number;
 }
