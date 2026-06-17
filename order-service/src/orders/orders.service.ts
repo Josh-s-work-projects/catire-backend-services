@@ -6,35 +6,64 @@ import { UpdateOrderDTO } from './dto/update-order.dto';
 import { User } from 'src/types/user';
 import axios from 'axios';
 
+export type OrderWithItems = Prisma.OrderGetPayload<{
+  include: { items: true };
+}>;
+
+export type OrderWithUser = OrderWithItems & {
+  user: User | null;
+};
+
 @Injectable()
 export class OrdersService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(
-    user?: User,
-  ): Promise<Prisma.OrderGetPayload<{ include: { items: true } }>[]> {
-    const include = { items: true };
+  async findAll(token: string, user?: User): Promise<OrderWithUser[]> {
+    let orders: OrderWithItems[];
+
     if (user && user.role.name === 'client') {
-      return await this.prisma.order.findMany({
+      orders = await this.prisma.order.findMany({
         where: { user_id: user.id },
-        include,
+        include: { items: true },
       });
+    } else {
+      orders = await this.prisma.order.findMany({ include: { items: true } });
     }
-    return await this.prisma.order.findMany({ include });
+
+    const ordersWithUsers = await Promise.all(
+      orders.map(async (order) => {
+        const user = await this.getUser(order.user_id, token).catch(() => null);
+
+        return {
+          ...order,
+          user,
+        };
+      }),
+    );
+
+    return ordersWithUsers;
   }
 
   async findOne(
     id: string,
+    token: string,
     user?: User,
-  ): Promise<Prisma.OrderGetPayload<{ include: { items: true } }> | null> {
+  ): Promise<OrderWithUser | null> {
     const order = await this.prisma.order.findUnique({
       where: { id },
       include: { items: true },
     });
+
     if (!order) return null;
     if (user && user.role.name === 'client' && order.user_id !== user.id)
       return null;
-    return order;
+
+    const userData = await this.getUser(order.user_id, token).catch(() => null);
+
+    return {
+      ...order,
+      user: userData,
+    };
   }
 
   async create(
@@ -119,5 +148,24 @@ export class OrdersService {
     );
 
     return await Promise.all(sanitized);
+  }
+
+  async getUser(user_id: number, token: string) {
+    try {
+      const res = await axios.get<User>(
+        `${process.env.AUTH_SERVICE_URL}/users/${user_id}`,
+        { headers: { authorization: token } },
+      );
+      const user = res.data;
+
+      if (!user) {
+        throw new NotFoundException(`Usuario con ID ${user_id} no encontrado.`);
+      }
+
+      return user;
+    } catch (error) {
+      console.log(error);
+      throw new NotFoundException(`Usuario con ID ${user_id} no encontrado.`);
+    }
   }
 }
