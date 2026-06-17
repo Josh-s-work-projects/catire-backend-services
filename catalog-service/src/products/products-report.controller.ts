@@ -31,7 +31,6 @@ export class ProductsReportController {
 
     products.forEach((p) => {
       doc.fontSize(12).text(`Producto: ${p.id} - ${p.name}`);
-      doc.text(`Precio: ${p.base_price}`);
       doc.text(`Categoria: ${p.category.name}`);
       doc.moveDown();
     });

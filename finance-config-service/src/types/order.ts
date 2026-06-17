@@ -3,6 +3,7 @@ export interface OrderDetails {
   order_id: string;
   product_id: number;
   quantity: number;
+  base_price: number;
   name_tag:
     | 'SIZE'
     | 'TOPPINGS'

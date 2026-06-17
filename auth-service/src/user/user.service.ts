@@ -18,6 +18,7 @@ export class UserService {
         data: {
           ...body,
           password: hash,
+          role_id: !body.role_id ? 1 : body.role_id,
         },
         include: { role: true },
       });

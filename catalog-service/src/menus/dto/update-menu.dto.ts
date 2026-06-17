@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateBranchDTO } from 'src/branches/dto/create-branch.dto';
+import { CreateMenuDTO } from './create-menu.dto';
 
-export class UpdateMenuDTO extends PartialType(CreateBranchDTO) {}
+export class UpdateMenuDTO extends PartialType(CreateMenuDTO) {}

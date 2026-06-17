@@ -27,10 +27,11 @@ export class OrdersController {
   @Get()
   @UseGuards(PermissionGuard)
   @CheckPermission('Orders', 'read')
-  async findAll(
-    @Request() req: TypedRequest,
-  ): Promise<Prisma.OrderGetPayload<{ include: { items: true } }>[]> {
-    return await this.service.findAll(req.user);
+  async findAll(@Request() req: TypedRequest) {
+    return await this.service.findAll(
+      req.headers?.authorization || '',
+      req.user,
+    );
   }
 
   @UseGuards(PermissionGuard)
@@ -55,7 +56,11 @@ export class OrdersController {
     @Param('id') id: string,
     @Body() body: UpdateOrderDTO,
   ): Promise<Prisma.OrderGetPayload<{ include: { items: true } }>> {
-    const order = await this.service.findOne(id, req.user);
+    const order = await this.service.findOne(
+      id,
+      req.headers?.authorization || '',
+      req.user,
+    );
     if (!order) throw new NotFoundException('Order not found');
     return this.service.update(id, body, req.headers?.authorization || '');
   }
@@ -75,7 +80,11 @@ export class OrdersController {
     @Request() req: TypedRequest,
     @Param('id') id: string,
   ): Promise<Prisma.OrderGetPayload<{ include: { items: true } }> | null> {
-    const order = await this.service.findOne(id, req.user);
+    const order = await this.service.findOne(
+      id,
+      req.headers?.authorization || '',
+      req.user,
+    );
     if (!order) throw new NotFoundException('Order not found');
     return order;
   }

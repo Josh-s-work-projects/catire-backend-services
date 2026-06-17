@@ -48,7 +48,6 @@ model Product {
   menu_id     Int
   name        String    @unique
   img_src     String
-  base_price  Float
   category_id Int
   category    Category  @relation(fields: [category_id], references: [id])
   menu        Menu      @relation(fields: [menu_id], references: [id])
