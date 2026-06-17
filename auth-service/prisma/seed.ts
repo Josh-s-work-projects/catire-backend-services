@@ -15,7 +15,7 @@ async function main() {
         Menus: ['read'],
         Orders: ['create', 'read'],
         Purchases: ['create', 'read'],
-        Users: [],
+        Users: ['update'],
         Roles: [],
       },
       employee: {
@@ -56,18 +56,18 @@ async function main() {
   });
   const adminRole = await prisma.role.findUnique({ where: { name: 'admin' } });
 
-  const pwd = await bcrypt.hash('Password123!', 10);
+  const pwd = await bcrypt.hash('12345678', 10);
 
   if (clientRole) {
     await prisma.user.upsert({
-      where: { email: 'client@example.com' },
+      where: { email: 'carlos@gmail.com' },
       update: {},
       create: {
         role_id: clientRole.id,
-        full_name: 'Usuario Cliente',
-        email: 'client@example.com',
-        dni: 10000001,
-        phone_1: '5550000001',
+        full_name: 'Carlos Mendoza',
+        email: 'carlos@gmail.com',
+        dni: 25918307,
+        phone_1: '04123028710',
         password: pwd,
       },
     });
@@ -75,14 +75,14 @@ async function main() {
 
   if (employeeRole) {
     await prisma.user.upsert({
-      where: { email: 'employee@example.com' },
+      where: { email: 'sergio@gmail.com' },
       update: {},
       create: {
         role_id: employeeRole.id,
-        full_name: 'Usuario Empleado',
-        email: 'employee@example.com',
-        dni: 10000002,
-        phone_1: '5550000002',
+        full_name: 'Sergio Guerrero',
+        email: 'sergio@gmail.com',
+        dni: 30827401,
+        phone_1: '042630963881',
         password: pwd,
       },
     });
@@ -90,14 +90,14 @@ async function main() {
 
   if (adminRole) {
     await prisma.user.upsert({
-      where: { email: 'admin@example.com' },
+      where: { email: 'wilmer@hotmail.com' },
       update: {},
       create: {
         role_id: adminRole.id,
-        full_name: 'Usuario Administrador',
-        email: 'admin@example.com',
-        dni: 10000003,
-        phone_1: '5550000003',
+        full_name: 'Wilmer Perez',
+        email: 'wilmer@hotmail.com',
+        dni: 14029873,
+        phone_1: '04225025023',
         password: pwd,
       },
     });

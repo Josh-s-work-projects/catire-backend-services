@@ -103,7 +103,7 @@ export class PurchasesService {
         const item = order.items.find((i) => i.product_id === product.id);
         if (!item) return total;
 
-        return total + item.quantity * product.base_price;
+        return total + item.quantity * item.base_price;
       }, 0);
     } catch (error) {
       console.log(error);

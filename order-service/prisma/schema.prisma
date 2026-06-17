@@ -28,6 +28,7 @@ model OrderDetails {
   order_id      String   @db.ObjectId
   product_id    Int
   quantity      Int
+  base_price    Float
   features      Json[]
   order         Order    @relation(fields: [order_id], references: [id])
   created_at    DateTime @default(now())

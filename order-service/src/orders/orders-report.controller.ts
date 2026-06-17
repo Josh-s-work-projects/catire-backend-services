@@ -22,7 +22,10 @@ export class OrdersReportController {
     @Request() req: TypedRequest,
     @Res() res: Response,
   ): Promise<void> {
-    const orders = await this.service.findAll();
+    const orders = await this.service.findAll(
+      req.headers.authorization || '',
+      req.user,
+    );
 
     const catalogUrl = process.env.CATALOG_SERVICE_URL;
     const requests: Array<Promise<CatalogResponse>> = [];
