@@ -9,6 +9,7 @@ import {
   Request,
   NotFoundException,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDTO } from './dto/create-order.dto';
@@ -27,10 +28,16 @@ export class OrdersController {
   @Get()
   @UseGuards(PermissionGuard)
   @CheckPermission('Orders', 'read')
-  async findAll(@Request() req: TypedRequest) {
+  async findAll(
+    @Request() req: TypedRequest,
+    @Query('includePaid') includePaid?: string,
+  ) {
+    const showPaid = includePaid === 'true';
+
     return await this.service.findAll(
       req.headers?.authorization || '',
       req.user,
+      showPaid,
     );
   }
 

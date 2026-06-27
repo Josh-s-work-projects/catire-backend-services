@@ -134,6 +134,14 @@ services:
     networks:
       - t4_network
 
+  redis_broker:
+    image: redis:7-alpine
+    container_name: catire_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - t4_network
+
 networks:
   t4_network:
     driver: bridge

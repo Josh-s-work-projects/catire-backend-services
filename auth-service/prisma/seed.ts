@@ -15,7 +15,7 @@ async function main() {
         Menus: ['read'],
         Orders: ['create', 'read'],
         Purchases: ['create', 'read'],
-        Users: ['update'],
+        Users: ['update', 'read'],
         Roles: [],
       },
       employee: {

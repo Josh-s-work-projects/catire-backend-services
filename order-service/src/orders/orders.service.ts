@@ -4,6 +4,7 @@ import { Prisma } from '@prisma/client';
 import { CreateOrderDTO, CreateOrderItemDTO } from './dto/create-order.dto';
 import { UpdateOrderDTO } from './dto/update-order.dto';
 import { User } from 'src/types/user';
+import { OrdersGateway } from './orders.gateway';
 import axios from 'axios';
 
 export type OrderWithItems = Prisma.OrderGetPayload<{
@@ -16,18 +17,31 @@ export type OrderWithUser = OrderWithItems & {
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private ordersGateway: OrdersGateway,
+  ) {}
 
-  async findAll(token: string, user?: User): Promise<OrderWithUser[]> {
+  async findAll(
+    token: string,
+    user?: User,
+    showPaid: boolean = false,
+  ): Promise<OrderWithUser[]> {
     let orders: OrderWithItems[];
+    const statusFilter = showPaid ? {} : { NOT: { status: 'PAID' as const } };
 
     if (user && user.role.name === 'client') {
       orders = await this.prisma.order.findMany({
-        where: { user_id: user.id },
+        where: { user_id: user.id, ...statusFilter },
         include: { items: true },
+        orderBy: { updated_at: 'desc' },
       });
     } else {
-      orders = await this.prisma.order.findMany({ include: { items: true } });
+      orders = await this.prisma.order.findMany({
+        where: statusFilter,
+        include: { items: true },
+        orderBy: { updated_at: 'desc' },
+      });
     }
 
     const ordersWithUsers = await Promise.all(
@@ -70,7 +84,7 @@ export class OrdersService {
     data: CreateOrderDTO,
     token: string,
     user_id: number,
-  ): Promise<Prisma.OrderGetPayload<{ include: { items: true } }>> {
+  ): Promise<OrderWithUser> {
     const { items, ...rest } = data;
     const createData: Prisma.OrderCreateInput = { ...rest, user_id };
 
@@ -79,17 +93,28 @@ export class OrdersService {
       createData.items = { create: sanitized };
     }
 
-    return await this.prisma.order.create({
+    const newOrder = await this.prisma.order.create({
       data: createData,
       include: { items: true },
     });
+
+    const user = await this.getUser(user_id, token).catch(() => null);
+
+    const orderWithUser: OrderWithUser = {
+      ...newOrder,
+      user,
+    };
+
+    this.ordersGateway.notifyOrderCreated(orderWithUser);
+
+    return orderWithUser;
   }
 
   async update(
     id: string,
     data: UpdateOrderDTO,
     token: string,
-  ): Promise<Prisma.OrderGetPayload<{ include: { items: true } }>> {
+  ): Promise<OrderWithUser> {
     const { items, ...rest } = data;
     const updateData: Prisma.OrderUpdateInput = { ...rest };
 
@@ -98,11 +123,24 @@ export class OrdersService {
       updateData.items = { create: sanitized };
     }
 
-    return await this.prisma.order.update({
+    const updatedOrder = await this.prisma.order.update({
       where: { id },
       data: updateData,
       include: { items: true },
     });
+
+    const user = await this.getUser(updatedOrder.user_id, token).catch(
+      () => null,
+    );
+
+    const orderWithUser: OrderWithUser = {
+      ...updatedOrder,
+      user,
+    };
+
+    this.ordersGateway.notifyOrderUpdated(orderWithUser);
+
+    return orderWithUser;
   }
 
   async remove(id: string) {
