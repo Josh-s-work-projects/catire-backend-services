@@ -5,7 +5,7 @@ const prisma = new PrismaService();
 async function main() {
   const order = await prisma.order.create({
     data: {
-      user_id: 1,
+      user_id: 3,
       is_delivery: true,
       notes: 'Orden especial',
       address: {
