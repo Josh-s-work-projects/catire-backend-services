@@ -35,3 +35,17 @@ model CurrencyRate {
 
   @@map ("currency_rates")
 }
+
+model PaymentConfig {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  holder_name   String
+  holder_dni    String
+  phone         String
+  bank          String
+  is_active     Boolean @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  deleted_at    DateTime?
+
+  @@map ("payment_configs")
+}

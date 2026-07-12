@@ -62,7 +62,7 @@ export class OrdersController {
       req.user,
     );
     if (!order) throw new NotFoundException('Order not found');
-    return this.service.update(id, body, req.headers?.authorization || '');
+    return this.service.update(id, body, req.headers?.authorization || '', req.user);
   }
 
   @UseGuards(PermissionGuard)

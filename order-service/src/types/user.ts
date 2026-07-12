@@ -31,6 +31,7 @@ export interface User {
   phone_2: string | null;
   password: string;
   id: number;
+  branch_id?: number | null;
   created_at: Date;
   updated_at: Date;
   deleted_at: Date | null;

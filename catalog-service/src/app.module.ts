@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MenusModule } from './menus/menus.module';
 import { ProductsModule } from './products/products.module';
+import { IngredientsModule } from './ingredients/ingredients.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -13,6 +14,7 @@ import { ProductsModule } from './products/products.module';
     BranchesModule,
     MenusModule,
     ProductsModule,
+    IngredientsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

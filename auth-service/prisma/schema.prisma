@@ -15,6 +15,10 @@ model User {
   phone_1         String
   phone_2         String?
   password        String
+  provider        String? @default("local")
+  google_id       String? @unique
+  avatar_url      String?
+  branch_id       Int?
   role            Role @relation(fields: [role_id], references: [id])
   shopping_cars   ShoppingCar[]
   refresh_tokens  RefreshToken[]
@@ -56,6 +60,8 @@ enum Modules {
   Products
   Users
   Roles
+  Orders
+  Ingredients
 }
 
 model RefreshToken {

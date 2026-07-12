@@ -50,6 +50,10 @@ export class CreateUserDto {
   })
   phone_2?: string;
 
+  @IsOptional()
+  @IsNumber(undefined, { message: 'branch_id: El ID de sucursal debe ser numérico.' })
+  branch_id?: number;
+
   @IsString({ message: 'password: La clave debe ser texto' })
   @IsNotEmpty({ message: 'password: La clave es requerida' })
   @MinLength(6, {

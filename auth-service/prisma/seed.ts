@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { DefaultPermissions, Role } from './types';
 import { PrismaService } from '../src/prisma/prisma.service';
 
@@ -17,6 +17,7 @@ async function main() {
         Purchases: ['create', 'read'],
         Users: ['update'],
         Roles: [],
+        Ingredients: ['read'],
       },
       employee: {
         Menus: ['create', 'read', 'update', 'delete'],
@@ -26,6 +27,7 @@ async function main() {
         Branches: ['read'],
         Users: ['read'],
         Roles: [],
+        Ingredients: ['read'],
       },
       admin: {
         Branches: ['create', 'read', 'update', 'delete'],
@@ -35,6 +37,7 @@ async function main() {
         Roles: ['create', 'read', 'update', 'delete'],
         Orders: ['create', 'read', 'update', 'delete'],
         Purchases: ['create', 'read', 'update', 'delete'],
+        Ingredients: ['create', 'read', 'update', 'delete'],
       },
     };
 

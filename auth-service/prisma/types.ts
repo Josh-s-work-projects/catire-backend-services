@@ -6,7 +6,8 @@ type Module =
   | 'Products'
   | 'Menus'
   | 'Orders'
-  | 'Purchases';
+  | 'Purchases'
+  | 'Ingredients';
 type Permission = 'create' | 'read' | 'update' | 'delete';
 
 type ModulesPermissions = {

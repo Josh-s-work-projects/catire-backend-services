@@ -78,6 +78,24 @@ export class CreateOrderDTO {
   })
   is_delivery!: boolean;
 
+  @IsOptional()
+  @IsNumber(undefined, {
+    message: 'branch_id: El ID de la sucursal debe ser numérico.',
+  })
+  branch_id?: number;
+
+  @IsOptional()
+  @IsString({
+    message: 'payment_method: El método de pago debe ser una cadena de texto.',
+  })
+  payment_method?: string;
+
+  @IsOptional()
+  @IsString({
+    message: 'payment_proof: El comprobante de pago debe ser una cadena de texto.',
+  })
+  payment_proof?: string;
+
   @IsNotEmpty({
     message: 'items: Los detalles de la orden son obligatorios.',
   })

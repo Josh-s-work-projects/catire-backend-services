@@ -11,9 +11,13 @@ generator client {
 model Order {
   id           String      @id @default(auto()) @map("_id") @db.ObjectId
   user_id      Int
+  branch_id    Int?
   is_delivery  Boolean
   notes        String?
   address      Json?
+  payment_method String?
+  payment_proof  String?
+  cancel_reason String?
   items        OrderDetails[]
   status       OrderStatusType? @default(PENDING)
   created_at   DateTime    @default(now())
@@ -53,7 +57,9 @@ model UserAccess {
 enum OrderStatusType {
   PENDING
   PAID
-  PROCESSING
+  PREPARING
+  READY
+  ON_THE_WAY
   DELIVERED
   CANCELLED
 }
